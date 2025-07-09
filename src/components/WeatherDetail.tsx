@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { caminoTowns } from '@/data/caminoTowns';
 
 interface WeatherDetailProps {
   town: {
@@ -40,6 +42,10 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
 }) => {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
+  // Find current town and next town
+  const currentTownIndex = caminoTowns.findIndex(t => t.id === town.id);
+  const nextTown = currentTownIndex < caminoTowns.length - 1 ? caminoTowns[currentTownIndex + 1] : null;
+
   const convertTemp = (temp: number) => {
     return isCelsius ? temp : Math.round((temp * 9/5) + 32);
   };
@@ -73,8 +79,25 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
   };
 
   const handleShadeClick = () => {
-    const googleMapsUrl = `https://www.google.com/maps/search/shade+trees/@${town.coordinates.lat},${town.coordinates.lng},17z`;
-    window.open(googleMapsUrl, '_blank');
+    if (nextTown) {
+      // Create Google Maps directions URL from current town to next town
+      const directionsUrl = `https://www.google.com/maps/dir/${town.coordinates.lat},${town.coordinates.lng}/${nextTown.coordinates.lat},${nextTown.coordinates.lng}/@${town.coordinates.lat},${town.coordinates.lng},12z/data=!3m1!4b1!4m2!4m1!3e2`;
+      window.open(directionsUrl, '_blank');
+    } else {
+      // If no next town, just show current location
+      const googleMapsUrl = `https://www.google.com/maps/search/shade+trees/@${town.coordinates.lat},${town.coordinates.lng},17z`;
+      window.open(googleMapsUrl, '_blank');
+    }
+  };
+
+  // Generate path shade information
+  const getPathShadeInfo = () => {
+    if (!nextTown) {
+      return "You've reached Santiago! Congratulations on completing the Camino!";
+    }
+    
+    const distance = nextTown.distance - town.distance;
+    return `Path to ${nextTown.name} (${distance}km): ${town.weather.shade}`;
   };
 
   // Create smooth curve path
@@ -134,7 +157,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
           </div>
         </div>
 
-        {/* Shade Information */}
+        {/* Path Shade Information */}
         <div className="mb-6">
           <Card 
             className="p-4 border border-green-200 bg-green-50/80 backdrop-blur-sm cursor-pointer hover:bg-green-100/80 transition-colors"
@@ -143,9 +166,13 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
             <div className="flex items-center gap-3">
               <TreePine className="h-5 w-5 text-green-600" />
               <div>
-                <h3 className="font-semibold text-green-800 mb-1">Shade Information</h3>
-                <p className="text-sm text-green-700">{town.weather.shade}</p>
-                <p className="text-xs text-green-600 mt-1">Click to view in Google Maps</p>
+                <h3 className="font-semibold text-green-800 mb-1">
+                  {nextTown ? 'Path Shade Information' : 'Journey Complete!'}
+                </h3>
+                <p className="text-sm text-green-700">{getPathShadeInfo()}</p>
+                <p className="text-xs text-green-600 mt-1">
+                  {nextTown ? 'Click to view route in Google Maps' : 'Click to view location'}
+                </p>
               </div>
             </div>
           </Card>
