@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -47,8 +46,12 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     return isCelsius ? temp : Math.round((temp * 9/5) + 32);
   };
 
-  const getTemperatureColor = (temp: number) => {
-    const celsius = isCelsius ? temp : (temp - 32) * 5/9;
+  const getTemperatureColor = (temp: number, isDisplayTemp = true) => {
+    // Always calculate based on Celsius for consistent color mapping
+    const celsius = isDisplayTemp ? 
+      (isCelsius ? temp : (temp - 32) * 5/9) : 
+      temp; // If temp is already in celsius (for original data)
+    
     if (celsius >= 30) return '#ef4444'; // hot red
     if (celsius >= 25) return '#f97316'; // warm orange
     if (celsius >= 20) return '#eab308'; // mild yellow
@@ -204,18 +207,18 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                 <div className="relative h-40 mb-4">
                   <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                     <defs>
-                      <linearGradient id="tempGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <linearGradient id={`tempGradient-${selectedDayIndex}`} x1="0%" y1="0%" x2="100%" y2="0%">
                         {selectedForecast.hourly.map((hour, index) => (
                           <stop
                             key={index}
                             offset={`${(index / (selectedForecast.hourly!.length - 1)) * 100}%`}
-                            stopColor={getTemperatureColor(hour.temperature)}
+                            stopColor={getTemperatureColor(hour.temperature, false)}
                           />
                         ))}
                       </linearGradient>
-                      <linearGradient id="tempArea" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="url(#tempGradient)" stopOpacity="0.3" />
-                        <stop offset="100%" stopColor="url(#tempGradient)" stopOpacity="0.05" />
+                      <linearGradient id={`tempArea-${selectedDayIndex}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.3" />
+                        <stop offset="100%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.05" />
                       </linearGradient>
                     </defs>
                     
@@ -231,10 +234,10 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                         const smoothPath = createSmoothPath(points);
                         return smoothPath + ` L 100,90 L 0,90 Z`;
                       })()}
-                      fill="url(#tempArea)"
+                      fill={`url(#tempArea-${selectedDayIndex})`}
                     />
                     
-                    {/* Temperature curve */}
+                    {/* Temperature curve - thinner and dotted */}
                     <path
                       d={(() => {
                         const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
@@ -246,8 +249,9 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                         return createSmoothPath(points);
                       })()}
                       fill="none"
-                      stroke="url(#tempGradient)"
-                      strokeWidth="3"
+                      stroke={`url(#tempGradient-${selectedDayIndex})`}
+                      strokeWidth="2"
+                      strokeDasharray="4,2"
                       className="drop-shadow-sm"
                     />
                     
@@ -262,8 +266,8 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                           key={index}
                           cx={x}
                           cy={y}
-                          r="4"
-                          fill={getTemperatureColor(hour.temperature)}
+                          r="3"
+                          fill={getTemperatureColor(hour.temperature, false)}
                           stroke="white"
                           strokeWidth="2"
                           className="drop-shadow-sm"
