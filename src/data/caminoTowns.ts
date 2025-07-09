@@ -1,4 +1,3 @@
-
 export interface CaminoTown {
   id: string;
   name: string;
@@ -11,6 +10,7 @@ export interface CaminoTown {
     humidity: number;
     windSpeed: number;
     visibility: number;
+    shade: string; // Adding shade information
   };
 }
 
@@ -26,7 +26,53 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'partly cloudy',
       humidity: 65,
       windSpeed: 12,
-      visibility: 15
+      visibility: 15,
+      shade: 'Partial shade in town center'
+    }
+  },
+  {
+    id: '1a',
+    name: 'Honto',
+    distance: 8,
+    elevation: 180,
+    coordinates: { lat: 43.1456, lng: -1.2789 },
+    weather: {
+      temperature: 17,
+      condition: 'cloudy',
+      humidity: 70,
+      windSpeed: 10,
+      visibility: 12,
+      shade: 'Good tree cover'
+    }
+  },
+  {
+    id: '1b',
+    name: 'Orisson',
+    distance: 15,
+    elevation: 790,
+    coordinates: { lat: 43.0812, lng: -1.3054 },
+    weather: {
+      temperature: 15,
+      condition: 'partly cloudy',
+      humidity: 75,
+      windSpeed: 14,
+      visibility: 18,
+      shade: 'Limited shade, exposed mountain'
+    }
+  },
+  {
+    id: '1c',
+    name: 'Borda',
+    distance: 20,
+    elevation: 850,
+    coordinates: { lat: 43.0234, lng: -1.3187 },
+    weather: {
+      temperature: 14,
+      condition: 'cloudy',
+      humidity: 80,
+      windSpeed: 16,
+      visibility: 10,
+      shade: 'Minimal shade, open plateau'
     }
   },
   {
@@ -40,7 +86,83 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'cloudy',
       humidity: 78,
       windSpeed: 8,
-      visibility: 12
+      visibility: 12,
+      shade: 'Forest shade available'
+    }
+  },
+  {
+    id: '2a',
+    name: 'Burguete',
+    distance: 28,
+    elevation: 884,
+    coordinates: { lat: 43.0167, lng: -1.3333 },
+    weather: {
+      temperature: 15,
+      condition: 'partly cloudy',
+      humidity: 72,
+      windSpeed: 9,
+      visibility: 14,
+      shade: 'Village shade, some trees'
+    }
+  },
+  {
+    id: '2b',
+    name: 'Espinal',
+    distance: 31,
+    elevation: 870,
+    coordinates: { lat: 43.0234, lng: -1.3456 },
+    weather: {
+      temperature: 16,
+      condition: 'sunny',
+      humidity: 68,
+      windSpeed: 11,
+      visibility: 16,
+      shade: 'Limited shade along road'
+    }
+  },
+  {
+    id: '2c',
+    name: 'Viskarret',
+    distance: 45,
+    elevation: 773,
+    coordinates: { lat: 42.9876, lng: -1.4567 },
+    weather: {
+      temperature: 18,
+      condition: 'sunny',
+      humidity: 62,
+      windSpeed: 13,
+      visibility: 18,
+      shade: 'Some roadside trees'
+    }
+  },
+  {
+    id: '2d',
+    name: 'Linzoain',
+    distance: 52,
+    elevation: 650,
+    coordinates: { lat: 42.9234, lng: -1.5123 },
+    weather: {
+      temperature: 19,
+      condition: 'partly cloudy',
+      humidity: 60,
+      windSpeed: 12,
+      visibility: 17,
+      shade: 'Village buildings provide shade'
+    }
+  },
+  {
+    id: '2e',
+    name: 'Zubiri',
+    distance: 58,
+    elevation: 520,
+    coordinates: { lat: 42.8876, lng: -1.5678 },
+    weather: {
+      temperature: 20,
+      condition: 'sunny',
+      humidity: 58,
+      windSpeed: 14,
+      visibility: 19,
+      shade: 'River trees, good shade'
     }
   },
   {
@@ -54,7 +176,53 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'sunny',
       humidity: 55,
       windSpeed: 15,
-      visibility: 20
+      visibility: 20,
+      shade: 'Urban shade, parks available'
+    }
+  },
+  {
+    id: '3a',
+    name: 'Cizur Menor',
+    distance: 72,
+    elevation: 471,
+    coordinates: { lat: 42.7892, lng: -1.6891 },
+    weather: {
+      temperature: 23,
+      condition: 'sunny',
+      humidity: 52,
+      windSpeed: 16,
+      visibility: 22,
+      shade: 'Some suburban shade'
+    }
+  },
+  {
+    id: '3b',
+    name: 'Zariquiegui',
+    distance: 78,
+    elevation: 710,
+    coordinates: { lat: 42.7456, lng: -1.7234 },
+    weather: {
+      temperature: 21,
+      condition: 'partly cloudy',
+      humidity: 56,
+      windSpeed: 14,
+      visibility: 20,
+      shade: 'Hill village, limited shade'
+    }
+  },
+  {
+    id: '3c',
+    name: 'Uterga',
+    distance: 83,
+    elevation: 510,
+    coordinates: { lat: 42.7123, lng: -1.7567 },
+    weather: {
+      temperature: 22,
+      condition: 'sunny',
+      humidity: 54,
+      windSpeed: 15,
+      visibility: 21,
+      shade: 'Roadside trees'
     }
   },
   {
@@ -68,7 +236,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'sunny',
       humidity: 45,
       windSpeed: 10,
-      visibility: 25
+      visibility: 25,
+      shade: 'Bridge area, some urban shade'
     }
   },
   {
@@ -82,7 +251,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'partly cloudy',
       humidity: 50,
       windSpeed: 12,
-      visibility: 18
+      visibility: 18,
+      shade: 'Historic town, good shade'
     }
   },
   {
@@ -96,7 +266,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'sunny',
       humidity: 42,
       windSpeed: 14,
-      visibility: 22
+      visibility: 22,
+      shade: 'Plaza shade available'
     }
   },
   {
@@ -110,7 +281,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'sunny',
       humidity: 38,
       windSpeed: 16,
-      visibility: 28
+      visibility: 28,
+      shade: 'City parks and buildings'
     }
   },
   {
@@ -124,7 +296,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'partly cloudy',
       humidity: 48,
       windSpeed: 11,
-      visibility: 20
+      visibility: 20,
+      shade: 'River valley, good shade'
     }
   },
   {
@@ -138,7 +311,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'cloudy',
       humidity: 62,
       windSpeed: 9,
-      visibility: 16
+      visibility: 16,
+      shade: 'Cathedral area, urban shade'
     }
   },
   {
@@ -152,7 +326,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'partly cloudy',
       humidity: 58,
       windSpeed: 13,
-      visibility: 18
+      visibility: 18,
+      shade: 'Mountain town, some shade'
     }
   },
   {
@@ -166,7 +341,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'cloudy',
       humidity: 72,
       windSpeed: 8,
-      visibility: 14
+      visibility: 14,
+      shade: 'High altitude, limited shade'
     }
   },
   {
@@ -180,7 +356,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'partly cloudy',
       humidity: 60,
       windSpeed: 12,
-      visibility: 17
+      visibility: 17,
+      shade: 'Gothic city, good shade'
     }
   },
   {
@@ -194,7 +371,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'sunny',
       humidity: 45,
       windSpeed: 15,
-      visibility: 24
+      visibility: 24,
+      shade: 'Hill town, castle shade'
     }
   },
   {
@@ -208,7 +386,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'sunny',
       humidity: 40,
       windSpeed: 18,
-      visibility: 26
+      visibility: 26,
+      shade: 'Church area, limited shade'
     }
   },
   {
@@ -222,7 +401,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'partly cloudy',
       humidity: 52,
       windSpeed: 14,
-      visibility: 21
+      visibility: 21,
+      shade: 'Historic center, some shade'
     }
   },
   {
@@ -236,7 +416,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'cloudy',
       humidity: 65,
       windSpeed: 10,
-      visibility: 15
+      visibility: 15,
+      shade: 'Monastery area, good shade'
     }
   },
   {
@@ -250,7 +431,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'partly cloudy',
       humidity: 68,
       windSpeed: 11,
-      visibility: 16
+      visibility: 16,
+      shade: 'Major city, plenty of shade'
     }
   },
   {
@@ -264,7 +446,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'cloudy',
       humidity: 75,
       windSpeed: 8,
-      visibility: 13
+      visibility: 13,
+      shade: 'Roman city, urban shade'
     }
   },
   {
@@ -278,7 +461,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'partly cloudy',
       humidity: 58,
       windSpeed: 12,
-      visibility: 19
+      visibility: 19,
+      shade: 'Castle area, river shade'
     }
   },
   {
@@ -292,7 +476,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'rainy',
       humidity: 85,
       windSpeed: 6,
-      visibility: 8
+      visibility: 8,
+      shade: 'Forest area, natural shade'
     }
   },
   {
@@ -306,7 +491,8 @@ export const caminoTowns: CaminoTown[] = [
       condition: 'rainy',
       humidity: 88,
       windSpeed: 7,
-      visibility: 10
+      visibility: 10,
+      shade: 'Cathedral city, excellent shade'
     }
   }
 ];
@@ -345,13 +531,12 @@ export const generateForecast = (town: CaminoTown) => {
   return forecast;
 };
 
-// Generate hourly forecast for today
+// Generate hourly forecast for today - always generate to ensure graph shows
 const generateHourlyForecast = (baseTemp: number, condition: string) => {
   const hours = [];
-  const currentHour = new Date().getHours();
   
   for (let i = 0; i < 24; i += 3) { // Every 3 hours
-    const hour = (currentHour + i) % 24;
+    const hour = i;
     const timeString = hour === 0 ? '12 AM' : 
                      hour < 12 ? `${hour} AM` : 
                      hour === 12 ? '12 PM' : 

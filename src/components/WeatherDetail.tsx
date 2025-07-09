@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud } from 'lucide-react';
+import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -10,6 +10,9 @@ interface WeatherDetailProps {
     name: string;
     distance: number;
     elevation: number;
+    weather: {
+      shade: string;
+    };
   };
   forecast: Array<{
     date: string;
@@ -50,11 +53,8 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
   };
 
   const todaysForecast = forecast[0];
-  const isToday = (dateString: string) => {
-    const today = new Date();
-    const forecastDate = new Date(dateString);
-    return today.toDateString() === forecastDate.toDateString();
-  };
+  console.log('Today\'s forecast:', todaysForecast);
+  console.log('Hourly data:', todaysForecast?.hourly);
 
   // Calculate chart positions for hourly temperatures
   const getChartPosition = (temp: number, minTemp: number, maxTemp: number) => {
@@ -88,8 +88,21 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
           </div>
         </div>
 
-        {/* Today's Hourly Forecast Chart */}
-        {todaysForecast && isToday(todaysForecast.date) && todaysForecast.hourly && (
+        {/* Shade Information */}
+        <div className="mb-6">
+          <Card className="p-4 border border-gray-200 bg-green-50">
+            <div className="flex items-center gap-3">
+              <TreePine className="h-5 w-5 text-green-600" />
+              <div>
+                <h3 className="font-semibold text-green-800 mb-1">Shade Information</h3>
+                <p className="text-sm text-green-700">{town.weather.shade}</p>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Today's Hourly Forecast Chart - Always show if hourly data exists */}
+        {todaysForecast && todaysForecast.hourly && (
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-black mb-3">Today's Hourly Forecast</h2>
             <Card className="p-4 border border-gray-200">
@@ -183,7 +196,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                   </div>
                   <div>
                     <div className="font-medium text-black">
-                      {index === 0 && isToday(day.date) ? 'Today' : 
+                      {index === 0 ? 'Today' : 
                         new Date(day.date).toLocaleDateString('en-US', { 
                           weekday: 'short', 
                           month: 'short', 

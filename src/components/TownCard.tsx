@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MapPin, Thermometer, Droplets, Wind } from 'lucide-react';
+import { MapPin, Thermometer, Droplets, Wind, TreePine } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 interface TownCardProps {
@@ -15,6 +15,7 @@ interface TownCardProps {
       humidity: number;
       windSpeed: number;
       visibility: number;
+      shade: string;
     };
   };
   isCurrent?: boolean;
@@ -72,6 +73,12 @@ const TownCard: React.FC<TownCardProps> = ({
       <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
         <span className="capitalize">{town.weather.condition}</span>
         <span>{town.distance} km • {town.elevation}m</span>
+      </div>
+      
+      {/* Shade information */}
+      <div className="flex items-center gap-1 mb-2 text-xs text-green-700">
+        <TreePine className="h-3 w-3" />
+        <span className="truncate">{town.weather.shade}</span>
       </div>
       
       <div className="flex items-center justify-between text-xs text-gray-500">
