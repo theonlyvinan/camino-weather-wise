@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,7 @@ interface WeatherDetailProps {
     name: string;
     distance: number;
     elevation: number;
+    coordinates: { lat: number; lng: number };
     weather: {
       shade: string;
     };
@@ -72,6 +72,11 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     return <Cloud className="h-5 w-5" />;
   };
 
+  const handleShadeClick = () => {
+    const googleMapsUrl = `https://www.google.com/maps/search/shade+trees/@${town.coordinates.lat},${town.coordinates.lng},17z`;
+    window.open(googleMapsUrl, '_blank');
+  };
+
   // Create smooth curve path
   const createSmoothPath = (points: Array<{x: number, y: number}>) => {
     if (points.length < 2) return '';
@@ -131,12 +136,16 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
 
         {/* Shade Information */}
         <div className="mb-6">
-          <Card className="p-4 border border-green-200 bg-green-50/80 backdrop-blur-sm">
+          <Card 
+            className="p-4 border border-green-200 bg-green-50/80 backdrop-blur-sm cursor-pointer hover:bg-green-100/80 transition-colors"
+            onClick={handleShadeClick}
+          >
             <div className="flex items-center gap-3">
               <TreePine className="h-5 w-5 text-green-600" />
               <div>
                 <h3 className="font-semibold text-green-800 mb-1">Shade Information</h3>
                 <p className="text-sm text-green-700">{town.weather.shade}</p>
+                <p className="text-xs text-green-600 mt-1">Click to view in Google Maps</p>
               </div>
             </div>
           </Card>
@@ -245,10 +254,10 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                           key={index}
                           cx={x}
                           cy={y}
-                          r="1.5"
+                          r="1"
                           fill={getTemperatureColor(hour.temperature, false)}
                           stroke="white"
-                          strokeWidth="0.5"
+                          strokeWidth="0.3"
                           className="drop-shadow-sm"
                         />
                       );
