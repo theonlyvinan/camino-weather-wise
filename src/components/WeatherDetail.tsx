@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
 
 interface WeatherDetailProps {
   town: {
@@ -31,15 +30,13 @@ interface WeatherDetailProps {
   }>;
   onBack: () => void;
   isCelsius: boolean;
-  onToggleUnit: (isCelsius: boolean) => void;
 }
 
 const WeatherDetail: React.FC<WeatherDetailProps> = ({ 
   town, 
   forecast, 
   onBack, 
-  isCelsius, 
-  onToggleUnit 
+  isCelsius
 }) => {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
@@ -129,14 +126,6 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900">{town.name}</h1>
             <p className="text-gray-600 text-sm">{town.distance} km • {town.elevation} m elevation</p>
-          </div>
-          <div className="flex items-center gap-2 text-sm bg-white/70 backdrop-blur-sm rounded-lg p-2">
-            <span className={`${isCelsius ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>°C</span>
-            <Switch
-              checked={!isCelsius}
-              onCheckedChange={(checked) => onToggleUnit(!checked)}
-            />
-            <span className={`${!isCelsius ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>°F</span>
           </div>
         </div>
 
@@ -241,11 +230,11 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                       })()}
                       fill="none"
                       stroke={`url(#tempGradient-${selectedDayIndex})`}
-                      strokeWidth="0.5"
+                      strokeWidth="0.3"
                       className="drop-shadow-sm"
                     />
                     
-                    {/* Temperature dots - smaller and more subtle */}
+                    {/* Temperature dots - smaller and perfectly round */}
                     {selectedForecast.hourly.map((hour, index) => {
                       const x = (index / (selectedForecast.hourly!.length - 1)) * 100;
                       const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
@@ -256,10 +245,10 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                           key={index}
                           cx={x}
                           cy={y}
-                          r="2"
+                          r="1.5"
                           fill={getTemperatureColor(hour.temperature, false)}
                           stroke="white"
-                          strokeWidth="1"
+                          strokeWidth="0.5"
                           className="drop-shadow-sm"
                         />
                       );

@@ -31,7 +31,6 @@ const Index = () => {
         forecast={generateForecast(selectedTown)}
         onBack={handleBackClick}
         isCelsius={isCelsius}
-        onToggleUnit={setIsCelsius}
       />
     );
   }
