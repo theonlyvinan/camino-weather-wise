@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -65,15 +66,6 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     if (celsius >= 25) return 'from-red-500 to-orange-500';
     if (celsius >= 15) return 'from-yellow-500 to-green-500';
     return 'from-cyan-500 to-blue-500';
-  };
-
-  const getDayTempColors = (high: number, low: number) => {
-    const avgTemp = (high + low) / 2;
-    const celsius = isCelsius ? avgTemp : (avgTemp - 32) * 5/9;
-    
-    if (celsius >= 25) return { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-800' };
-    if (celsius >= 15) return { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-800' };
-    return { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-800' };
   };
 
   const getWeatherIcon = (condition: string) => {
@@ -165,14 +157,13 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
         <div className="mb-6">
           <div className="flex gap-2 overflow-x-auto pb-2">
             {forecast.map((day, index) => {
-              const colors = getDayTempColors(day.high, day.low);
               return (
                 <button
                   key={index}
                   onClick={() => setSelectedDayIndex(index)}
                   className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                     selectedDayIndex === index
-                      ? `${colors.bg} ${colors.border} ${colors.text} border-2`
+                      ? 'bg-blue-100 border-blue-300 text-blue-800 border-2'
                       : 'bg-white/60 border border-gray-200 text-gray-600 hover:bg-white/80'
                   }`}
                 >
@@ -237,7 +228,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                       fill={`url(#tempArea-${selectedDayIndex})`}
                     />
                     
-                    {/* Temperature curve - very thin like the reference */}
+                    {/* Temperature curve - ultra thin */}
                     <path
                       d={(() => {
                         const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
@@ -250,7 +241,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                       })()}
                       fill="none"
                       stroke={`url(#tempGradient-${selectedDayIndex})`}
-                      strokeWidth="1"
+                      strokeWidth="0.5"
                       className="drop-shadow-sm"
                     />
                     
@@ -320,9 +311,8 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
         <div className="space-y-3">
           <h2 className="text-lg font-semibold text-gray-900">10-Day Forecast</h2>
           {forecast.map((day, index) => {
-            const colors = getDayTempColors(day.high, day.low);
             return (
-              <Card key={index} className={`p-4 border ${colors.bg} ${colors.border} backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer`}>
+              <Card key={index} className="p-4 border border-gray-200 bg-white backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="text-gray-600">
