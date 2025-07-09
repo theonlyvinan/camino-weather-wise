@@ -4,7 +4,7 @@ export interface CaminoTown {
   name: string;
   distance: number;
   elevation: number;
-  coordinates: [number, number]; // [latitude, longitude]
+  coordinates: { lat: number; lng: number };
   weather: {
     temperature: number;
     condition: string;
@@ -20,7 +20,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Saint-Jean-Pied-de-Port',
     distance: 0,
     elevation: 169,
-    coordinates: [43.1633, -1.2364],
+    coordinates: { lat: 43.1633, lng: -1.2364 },
     weather: {
       temperature: 18,
       condition: 'partly cloudy',
@@ -34,7 +34,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Roncesvalles',
     distance: 25,
     elevation: 952,
-    coordinates: [43.0089, -1.3195],
+    coordinates: { lat: 43.0089, lng: -1.3195 },
     weather: {
       temperature: 14,
       condition: 'cloudy',
@@ -48,7 +48,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Pamplona',
     distance: 67,
     elevation: 449,
-    coordinates: [42.8125, -1.6458],
+    coordinates: { lat: 42.8125, lng: -1.6458 },
     weather: {
       temperature: 22,
       condition: 'sunny',
@@ -62,7 +62,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Puente la Reina',
     distance: 92,
     elevation: 346,
-    coordinates: [42.6667, -1.8167],
+    coordinates: { lat: 42.6667, lng: -1.8167 },
     weather: {
       temperature: 25,
       condition: 'sunny',
@@ -76,7 +76,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Estella',
     distance: 112,
     elevation: 421,
-    coordinates: [42.6711, -2.0281],
+    coordinates: { lat: 42.6711, lng: -2.0281 },
     weather: {
       temperature: 24,
       condition: 'partly cloudy',
@@ -90,7 +90,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Los Arcos',
     distance: 134,
     elevation: 444,
-    coordinates: [42.5678, -2.1858],
+    coordinates: { lat: 42.5678, lng: -2.1858 },
     weather: {
       temperature: 26,
       condition: 'sunny',
@@ -104,7 +104,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Logroño',
     distance: 156,
     elevation: 384,
-    coordinates: [42.4627, -2.4449],
+    coordinates: { lat: 42.4627, lng: -2.4449 },
     weather: {
       temperature: 28,
       condition: 'sunny',
@@ -118,7 +118,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Nájera',
     distance: 185,
     elevation: 496,
-    coordinates: [42.4167, -2.7333],
+    coordinates: { lat: 42.4167, lng: -2.7333 },
     weather: {
       temperature: 27,
       condition: 'partly cloudy',
@@ -132,7 +132,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Santo Domingo de la Calzada',
     distance: 205,
     elevation: 639,
-    coordinates: [42.4394, -2.9522],
+    coordinates: { lat: 42.4394, lng: -2.9522 },
     weather: {
       temperature: 23,
       condition: 'cloudy',
@@ -146,7 +146,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Belorado',
     distance: 230,
     elevation: 770,
-    coordinates: [42.4264, -3.1875],
+    coordinates: { lat: 42.4264, lng: -3.1875 },
     weather: {
       temperature: 21,
       condition: 'partly cloudy',
@@ -160,7 +160,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'San Juan de Ortega',
     distance: 253,
     elevation: 1020,
-    coordinates: [42.3833, -3.4167],
+    coordinates: { lat: 42.3833, lng: -3.4167 },
     weather: {
       temperature: 17,
       condition: 'cloudy',
@@ -174,7 +174,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Burgos',
     distance: 274,
     elevation: 856,
-    coordinates: [42.3439, -3.6968],
+    coordinates: { lat: 42.3439, lng: -3.6968 },
     weather: {
       temperature: 20,
       condition: 'partly cloudy',
@@ -188,7 +188,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Castrojeriz',
     distance: 318,
     elevation: 808,
-    coordinates: [42.2844, -4.1375],
+    coordinates: { lat: 42.2844, lng: -4.1375 },
     weather: {
       temperature: 24,
       condition: 'sunny',
@@ -202,7 +202,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Frómista',
     distance: 343,
     elevation: 780,
-    coordinates: [42.2639, -4.4056],
+    coordinates: { lat: 42.2639, lng: -4.4056 },
     weather: {
       temperature: 26,
       condition: 'sunny',
@@ -216,7 +216,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Carrión de los Condes',
     distance: 360,
     elevation: 840,
-    coordinates: [42.3372, -4.6031],
+    coordinates: { lat: 42.3372, lng: -4.6031 },
     weather: {
       temperature: 25,
       condition: 'partly cloudy',
@@ -230,7 +230,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Sahagún',
     distance: 394,
     elevation: 823,
-    coordinates: [42.3717, -4.9406],
+    coordinates: { lat: 42.3717, lng: -4.9406 },
     weather: {
       temperature: 23,
       condition: 'cloudy',
@@ -244,7 +244,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'León',
     distance: 447,
     elevation: 822,
-    coordinates: [42.5987, -5.5671],
+    coordinates: { lat: 42.5987, lng: -5.5671 },
     weather: {
       temperature: 19,
       condition: 'partly cloudy',
@@ -258,7 +258,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Astorga',
     distance: 494,
     elevation: 869,
-    coordinates: [42.4569, -6.0644],
+    coordinates: { lat: 42.4569, lng: -6.0644 },
     weather: {
       temperature: 18,
       condition: 'cloudy',
@@ -272,7 +272,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Ponferrada',
     distance: 544,
     elevation: 534,
-    coordinates: [42.5500, -6.5833],
+    coordinates: { lat: 42.5500, lng: -6.5833 },
     weather: {
       temperature: 22,
       condition: 'partly cloudy',
@@ -286,7 +286,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Sarria',
     distance: 663,
     elevation: 454,
-    coordinates: [42.7833, -7.4167],
+    coordinates: { lat: 42.7833, lng: -7.4167 },
     weather: {
       temperature: 16,
       condition: 'rainy',
@@ -300,7 +300,7 @@ export const caminoTowns: CaminoTown[] = [
     name: 'Santiago de Compostela',
     distance: 775,
     elevation: 260,
-    coordinates: [42.8805, -8.5456],
+    coordinates: { lat: 42.8805, lng: -8.5456 },
     weather: {
       temperature: 15,
       condition: 'rainy',
