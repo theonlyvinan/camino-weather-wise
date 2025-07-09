@@ -7,6 +7,7 @@ import { caminoTowns } from '@/data/caminoTowns';
 
 interface WeatherDetailProps {
   town: {
+    id: string;
     name: string;
     distance: number;
     elevation: number;
