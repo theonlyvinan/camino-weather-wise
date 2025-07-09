@@ -36,34 +36,34 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-md mx-auto bg-white min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-orange-100">
+      <div className="max-w-md mx-auto bg-white/80 backdrop-blur-sm min-h-screen shadow-xl">
         {/* Header */}
-        <div className="bg-black text-white p-4 sticky top-0 z-10">
+        <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white p-4 sticky top-0 z-10 shadow-lg">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
-              <Navigation className="h-6 w-6" />
+              <Navigation className="h-6 w-6 text-yellow-300" />
               <h1 className="text-xl font-bold">Camino Weather</h1>
             </div>
             
             {/* Temperature Unit Toggle */}
-            <div className="flex items-center gap-2 text-sm">
-              <Thermometer className="h-4 w-4" />
-              <span className={`${isCelsius ? 'text-white font-medium' : 'text-gray-400'}`}>°C</span>
+            <div className="flex items-center gap-2 text-sm bg-white/20 rounded-full px-3 py-1 backdrop-blur-sm">
+              <Thermometer className="h-4 w-4 text-yellow-300" />
+              <span className={`${isCelsius ? 'text-white font-medium' : 'text-gray-300'}`}>°C</span>
               <Switch
                 checked={!isCelsius}
                 onCheckedChange={(checked) => setIsCelsius(!checked)}
-                className="data-[state=checked]:bg-white data-[state=unchecked]:bg-gray-600"
+                className="data-[state=checked]:bg-orange-400 data-[state=unchecked]:bg-blue-400"
               />
-              <span className={`${!isCelsius ? 'text-white font-medium' : 'text-gray-400'}`}>°F</span>
+              <span className={`${!isCelsius ? 'text-white font-medium' : 'text-gray-300'}`}>°F</span>
             </div>
           </div>
           
-          <p className="text-gray-300 text-sm">
+          <p className="text-blue-100 text-sm">
             Weather forecast for the Camino Frances Way
           </p>
           {userLocation && (
-            <div className="flex items-center gap-2 mt-2 text-xs text-gray-300">
+            <div className="flex items-center gap-2 mt-2 text-xs text-green-200">
               <MapPin className="h-3 w-3" />
               <span>Location detected</span>
             </div>
@@ -72,20 +72,20 @@ const Index = () => {
 
         {/* Current Location Summary */}
         {currentTown && (
-          <div className="p-4 bg-gradient-to-r from-gray-100 to-gray-50 border-b">
-            <h2 className="text-sm font-medium text-gray-700 mb-2">Your Journey</h2>
+          <div className="p-4 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 border-b shadow-md">
+            <h2 className="text-sm font-medium text-white mb-2 opacity-90">Your Journey</h2>
             <div className="flex justify-between items-center">
               <div>
-                <p className="font-semibold text-black">Current: {currentTown.name}</p>
+                <p className="font-semibold text-white text-lg">Current: {currentTown.name}</p>
                 {nextTown && (
-                  <p className="text-sm text-gray-600">Next: {nextTown.name}</p>
+                  <p className="text-sm text-emerald-100">Next: {nextTown.name}</p>
                 )}
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-black">
+                <div className="text-3xl font-bold text-white drop-shadow-sm">
                   {convertTemp(currentTown.weather.temperature)}°{isCelsius ? 'C' : 'F'}
                 </div>
-                <div className="text-xs text-gray-600 capitalize">
+                <div className="text-xs text-emerald-100 capitalize">
                   {currentTown.weather.condition}
                 </div>
               </div>
@@ -95,7 +95,7 @@ const Index = () => {
 
         {/* Towns List */}
         <div className="p-4 space-y-3">
-          <h2 className="text-lg font-semibold text-black mb-4">All Towns</h2>
+          <h2 className="text-lg font-semibold text-purple-800 mb-4">All Towns</h2>
           {caminoTowns.map((town) => (
             <TownCard
               key={town.id}
@@ -109,8 +109,8 @@ const Index = () => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 text-center text-xs text-gray-500 border-t">
-          <p>¡Buen Camino! Safe travels on your journey.</p>
+        <div className="p-4 text-center text-xs text-purple-600 border-t bg-gradient-to-r from-yellow-50 to-orange-50">
+          <p className="font-medium">¡Buen Camino! Safe travels on your journey. 🌟</p>
         </div>
       </div>
     </div>
