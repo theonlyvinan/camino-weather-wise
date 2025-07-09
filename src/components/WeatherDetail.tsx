@@ -27,11 +27,17 @@ interface WeatherDetailProps {
     }>;
   }>;
   onBack: () => void;
+  isCelsius: boolean;
+  onToggleUnit: (isCelsius: boolean) => void;
 }
 
-const WeatherDetail: React.FC<WeatherDetailProps> = ({ town, forecast, onBack }) => {
-  const [isCelsius, setIsCelsius] = useState(true);
-  
+const WeatherDetail: React.FC<WeatherDetailProps> = ({ 
+  town, 
+  forecast, 
+  onBack, 
+  isCelsius, 
+  onToggleUnit 
+}) => {
   const convertTemp = (temp: number) => {
     return isCelsius ? temp : Math.round((temp * 9/5) + 32);
   };
@@ -48,6 +54,12 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ town, forecast, onBack })
     const today = new Date();
     const forecastDate = new Date(dateString);
     return today.toDateString() === forecastDate.toDateString();
+  };
+
+  // Calculate chart positions for hourly temperatures
+  const getChartPosition = (temp: number, minTemp: number, maxTemp: number) => {
+    if (maxTemp === minTemp) return 50; // Center if all temps are the same
+    return ((maxTemp - temp) / (maxTemp - minTemp)) * 80 + 10; // 10-90% range
   };
 
   return (
@@ -70,34 +82,92 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({ town, forecast, onBack })
             <span className={`${isCelsius ? 'text-black font-medium' : 'text-gray-500'}`}>°C</span>
             <Switch
               checked={!isCelsius}
-              onCheckedChange={(checked) => setIsCelsius(!checked)}
+              onCheckedChange={(checked) => onToggleUnit(!checked)}
             />
             <span className={`${!isCelsius ? 'text-black font-medium' : 'text-gray-500'}`}>°F</span>
           </div>
         </div>
 
-        {/* Today's Hourly Forecast */}
+        {/* Today's Hourly Forecast Chart */}
         {todaysForecast && isToday(todaysForecast.date) && todaysForecast.hourly && (
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-black mb-3">Today's Hourly Forecast</h2>
-            <div className="flex gap-3 overflow-x-auto pb-3">
-              {todaysForecast.hourly.map((hour, index) => (
-                <Card key={index} className="flex-shrink-0 p-3 border border-gray-200 min-w-[80px]">
-                  <div className="text-center">
-                    <div className="text-xs text-gray-600 mb-1">{hour.time}</div>
-                    <div className="flex justify-center mb-2">
-                      {getWeatherIcon(hour.condition)}
-                    </div>
-                    <div className="font-bold text-black text-sm">
-                      {convertTemp(hour.temperature)}°
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {hour.precipitation}%
-                    </div>
+            <Card className="p-4 border border-gray-200">
+              <div className="relative">
+                {/* Temperature Chart */}
+                <div className="relative h-32 mb-4">
+                  <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    {/* Temperature curve */}
+                    <path
+                      d={`M ${todaysForecast.hourly.map((hour, index) => {
+                        const x = (index / (todaysForecast.hourly!.length - 1)) * 100;
+                        const minTemp = Math.min(...todaysForecast.hourly!.map(h => h.temperature));
+                        const maxTemp = Math.max(...todaysForecast.hourly!.map(h => h.temperature));
+                        const y = getChartPosition(hour.temperature, minTemp, maxTemp);
+                        return `${x},${y}`;
+                      }).join(' L ')}`}
+                      fill="none"
+                      stroke="#3b82f6"
+                      strokeWidth="2"
+                      className="drop-shadow-sm"
+                    />
+                    {/* Temperature dots */}
+                    {todaysForecast.hourly.map((hour, index) => {
+                      const x = (index / (todaysForecast.hourly!.length - 1)) * 100;
+                      const minTemp = Math.min(...todaysForecast.hourly!.map(h => h.temperature));
+                      const maxTemp = Math.max(...todaysForecast.hourly!.map(h => h.temperature));
+                      const y = getChartPosition(hour.temperature, minTemp, maxTemp);
+                      return (
+                        <circle
+                          key={index}
+                          cx={x}
+                          cy={y}
+                          r="2"
+                          fill="#3b82f6"
+                          className="drop-shadow-sm"
+                        />
+                      );
+                    })}
+                  </svg>
+                  
+                  {/* Temperature labels */}
+                  <div className="absolute inset-0 flex justify-between items-start">
+                    {todaysForecast.hourly.map((hour, index) => {
+                      const minTemp = Math.min(...todaysForecast.hourly!.map(h => h.temperature));
+                      const maxTemp = Math.max(...todaysForecast.hourly!.map(h => h.temperature));
+                      const topPosition = getChartPosition(hour.temperature, minTemp, maxTemp);
+                      return (
+                        <div
+                          key={index}
+                          className="text-xs font-medium text-black"
+                          style={{ 
+                            position: 'absolute',
+                            left: `${(index / (todaysForecast.hourly!.length - 1)) * 100}%`,
+                            top: `${Math.max(0, topPosition - 8)}%`,
+                            transform: 'translateX(-50%)'
+                          }}
+                        >
+                          {convertTemp(hour.temperature)}°
+                        </div>
+                      );
+                    })}
                   </div>
-                </Card>
-              ))}
-            </div>
+                </div>
+
+                {/* Weather icons and times */}
+                <div className="flex justify-between items-center">
+                  {todaysForecast.hourly.map((hour, index) => (
+                    <div key={index} className="flex flex-col items-center text-center min-w-0">
+                      <div className="text-gray-600 mb-1">
+                        {getWeatherIcon(hour.condition)}
+                      </div>
+                      <div className="text-xs text-gray-600">{hour.time}</div>
+                      <div className="text-xs text-blue-600 mt-1">{hour.precipitation}%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
           </div>
         )}
 

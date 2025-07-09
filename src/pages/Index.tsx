@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { Navigation, MapPin } from 'lucide-react';
+import { Navigation, MapPin, Thermometer } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import TownCard from '@/components/TownCard';
 import WeatherDetail from '@/components/WeatherDetail';
 import { useLocationService } from '@/components/LocationService';
@@ -8,6 +9,7 @@ import { caminoTowns, generateForecast, CaminoTown } from '@/data/caminoTowns';
 
 const Index = () => {
   const [selectedTown, setSelectedTown] = useState<CaminoTown | null>(null);
+  const [isCelsius, setIsCelsius] = useState(true);
   const { currentTown, nextTown, userLocation } = useLocationService();
 
   const handleTownClick = (town: CaminoTown) => {
@@ -18,12 +20,18 @@ const Index = () => {
     setSelectedTown(null);
   };
 
+  const convertTemp = (temp: number) => {
+    return isCelsius ? temp : Math.round((temp * 9/5) + 32);
+  };
+
   if (selectedTown) {
     return (
       <WeatherDetail
         town={selectedTown}
         forecast={generateForecast(selectedTown)}
         onBack={handleBackClick}
+        isCelsius={isCelsius}
+        onToggleUnit={setIsCelsius}
       />
     );
   }
@@ -33,10 +41,25 @@ const Index = () => {
       <div className="max-w-md mx-auto bg-white min-h-screen">
         {/* Header */}
         <div className="bg-black text-white p-4 sticky top-0 z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <Navigation className="h-6 w-6" />
-            <h1 className="text-xl font-bold">Camino Weather</h1>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <Navigation className="h-6 w-6" />
+              <h1 className="text-xl font-bold">Camino Weather</h1>
+            </div>
+            
+            {/* Temperature Unit Toggle */}
+            <div className="flex items-center gap-2 text-sm">
+              <Thermometer className="h-4 w-4" />
+              <span className={`${isCelsius ? 'text-white font-medium' : 'text-gray-400'}`}>°C</span>
+              <Switch
+                checked={!isCelsius}
+                onCheckedChange={(checked) => setIsCelsius(!checked)}
+                className="data-[state=checked]:bg-white data-[state=unchecked]:bg-gray-600"
+              />
+              <span className={`${!isCelsius ? 'text-white font-medium' : 'text-gray-400'}`}>°F</span>
+            </div>
           </div>
+          
           <p className="text-gray-300 text-sm">
             Weather forecast for the Camino Frances Way
           </p>
@@ -61,7 +84,7 @@ const Index = () => {
               </div>
               <div className="text-right">
                 <div className="text-2xl font-bold text-black">
-                  {currentTown.weather.temperature}°C
+                  {convertTemp(currentTown.weather.temperature)}°{isCelsius ? 'C' : 'F'}
                 </div>
                 <div className="text-xs text-gray-600 capitalize">
                   {currentTown.weather.condition}
@@ -81,6 +104,7 @@ const Index = () => {
               isCurrent={currentTown?.id === town.id}
               isNext={nextTown?.id === town.id}
               onClick={() => handleTownClick(town)}
+              isCelsius={isCelsius}
             />
           ))}
         </div>

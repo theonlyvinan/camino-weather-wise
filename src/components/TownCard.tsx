@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MapPin, Thermometer, Eye, Droplets, Wind } from 'lucide-react';
+import { MapPin, Thermometer, Droplets, Wind } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 
 interface TownCardProps {
@@ -17,72 +17,76 @@ interface TownCardProps {
       visibility: number;
     };
   };
-  isNext?: boolean;
   isCurrent?: boolean;
+  isNext?: boolean;
   onClick: () => void;
+  isCelsius: boolean;
 }
 
-const TownCard: React.FC<TownCardProps> = ({ town, isNext, isCurrent, onClick }) => {
+const TownCard: React.FC<TownCardProps> = ({ 
+  town, 
+  isCurrent, 
+  isNext, 
+  onClick, 
+  isCelsius 
+}) => {
+  const convertTemp = (temp: number) => {
+    return isCelsius ? temp : Math.round((temp * 9/5) + 32);
+  };
+
+  const getBorderColor = () => {
+    if (isCurrent) return 'border-blue-500 bg-blue-50';
+    if (isNext) return 'border-green-500 bg-green-50';
+    return 'border-gray-200 hover:border-gray-400';
+  };
+
+  const getStatusText = () => {
+    if (isCurrent) return 'You are here';
+    if (isNext) return 'Next destination';
+    return null;
+  };
+
   return (
     <Card 
-      className={`p-4 cursor-pointer transition-all duration-300 hover:scale-[1.02] border-2 ${
-        isCurrent 
-          ? 'bg-black text-white border-black' 
-          : isNext 
-            ? 'bg-gray-100 border-gray-400 border-dashed' 
-            : 'bg-white border-gray-200 hover:border-gray-400'
-      }`}
+      className={`p-4 cursor-pointer transition-all duration-200 ${getBorderColor()}`}
       onClick={onClick}
     >
-      <div className="flex justify-between items-start mb-3">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <MapPin className={`h-4 w-4 ${isCurrent ? 'text-white' : 'text-gray-600'}`} />
-          <h3 className={`font-semibold text-lg ${isCurrent ? 'text-white' : 'text-black'}`}>
-            {town.name}
-          </h3>
-          {isNext && (
-            <span className="text-xs bg-gray-800 text-white px-2 py-1 rounded-full">
-              NEXT
-            </span>
-          )}
+          <MapPin className={`h-4 w-4 ${isCurrent ? 'text-blue-500' : isNext ? 'text-green-500' : 'text-gray-500'}`} />
+          <h3 className="font-semibold text-black">{town.name}</h3>
         </div>
         <div className="text-right">
-          <div className={`text-2xl font-bold ${isCurrent ? 'text-white' : 'text-black'}`}>
-            {town.weather.temperature}°C
-          </div>
-          <div className={`text-sm ${isCurrent ? 'text-gray-300' : 'text-gray-600'}`}>
-            {town.weather.condition}
+          <div className="text-xl font-bold text-black">
+            {convertTemp(town.weather.temperature)}°{isCelsius ? 'C' : 'F'}
           </div>
         </div>
       </div>
       
-      <div className="flex justify-between text-sm mb-2">
-        <span className={`${isCurrent ? 'text-gray-300' : 'text-gray-600'}`}>
-          Distance: {town.distance} km
-        </span>
-        <span className={`${isCurrent ? 'text-gray-300' : 'text-gray-600'}`}>
-          Elevation: {town.elevation} m
-        </span>
+      {getStatusText() && (
+        <div className={`text-xs font-medium mb-2 ${isCurrent ? 'text-blue-600' : 'text-green-600'}`}>
+          {getStatusText()}
+        </div>
+      )}
+      
+      <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
+        <span className="capitalize">{town.weather.condition}</span>
+        <span>{town.distance} km • {town.elevation}m</span>
       </div>
       
-      <div className="flex justify-between text-xs">
-        <div className="flex items-center gap-1">
-          <Droplets className={`h-3 w-3 ${isCurrent ? 'text-gray-300' : 'text-gray-500'}`} />
-          <span className={`${isCurrent ? 'text-gray-300' : 'text-gray-500'}`}>
-            {town.weather.humidity}%
-          </span>
+      <div className="flex items-center justify-between text-xs text-gray-500">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <Droplets className="h-3 w-3" />
+            <span>{town.weather.humidity}%</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Wind className="h-3 w-3" />
+            <span>{town.weather.windSpeed} km/h</span>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          <Wind className={`h-3 w-3 ${isCurrent ? 'text-gray-300' : 'text-gray-500'}`} />
-          <span className={`${isCurrent ? 'text-gray-300' : 'text-gray-500'}`}>
-            {town.weather.windSpeed} km/h
-          </span>
-        </div>
-        <div className="flex items-center gap-1">
-          <Eye className={`h-3 w-3 ${isCurrent ? 'text-gray-300' : 'text-gray-500'}`} />
-          <span className={`${isCurrent ? 'text-gray-300' : 'text-gray-500'}`}>
-            {town.weather.visibility} km
-          </span>
+        <div className="text-gray-400">
+          Tap for details
         </div>
       </div>
     </Card>
