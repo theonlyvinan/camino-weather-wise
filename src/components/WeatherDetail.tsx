@@ -217,12 +217,12 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                         ))}
                       </linearGradient>
                       <linearGradient id={`tempArea-${selectedDayIndex}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.3" />
-                        <stop offset="100%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.05" />
+                        <stop offset="0%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.15" />
+                        <stop offset="100%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.02" />
                       </linearGradient>
                     </defs>
                     
-                    {/* Area under curve */}
+                    {/* Area under curve - very subtle */}
                     <path
                       d={(() => {
                         const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
@@ -237,7 +237,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                       fill={`url(#tempArea-${selectedDayIndex})`}
                     />
                     
-                    {/* Temperature curve - thinner and dotted */}
+                    {/* Temperature curve - very thin like the reference */}
                     <path
                       d={(() => {
                         const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
@@ -250,12 +250,11 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                       })()}
                       fill="none"
                       stroke={`url(#tempGradient-${selectedDayIndex})`}
-                      strokeWidth="2"
-                      strokeDasharray="4,2"
+                      strokeWidth="1"
                       className="drop-shadow-sm"
                     />
                     
-                    {/* Temperature dots */}
+                    {/* Temperature dots - smaller and more subtle */}
                     {selectedForecast.hourly.map((hour, index) => {
                       const x = (index / (selectedForecast.hourly!.length - 1)) * 100;
                       const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
@@ -266,10 +265,10 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                           key={index}
                           cx={x}
                           cy={y}
-                          r="3"
+                          r="2"
                           fill={getTemperatureColor(hour.temperature, false)}
                           stroke="white"
-                          strokeWidth="2"
+                          strokeWidth="1"
                           className="drop-shadow-sm"
                         />
                       );
