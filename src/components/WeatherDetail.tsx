@@ -187,10 +187,16 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
         </div>
 
         {/* Hourly Forecast Chart */}
-        {selectedForecast && selectedForecast.hourly && (
+        {selectedForecast && selectedForecast.hourly && selectedForecast.hourly.length > 0 && (
           <div className="mb-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-3">
-              {selectedDayIndex === 0 ? "Today's" : "Selected Day's"} Hourly Forecast
+              {selectedDayIndex === 0 ? "Today's" : 
+                new Date(selectedForecast.date).toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  month: 'short', 
+                  day: 'numeric' 
+                })
+              } Hourly Forecast
             </h2>
             <Card className="p-4 border border-white/60 bg-white/70 backdrop-blur-sm">
               <div className="relative">

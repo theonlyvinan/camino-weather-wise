@@ -497,7 +497,7 @@ export const caminoTowns: CaminoTown[] = [
   }
 ];
 
-// Generate mock 10-day forecast with hourly data for today
+// Generate mock 10-day forecast with hourly data for all days
 export const generateForecast = (town: CaminoTown) => {
   const today = new Date();
   const forecast = [];
@@ -522,7 +522,7 @@ export const generateForecast = (town: CaminoTown) => {
       humidity: town.weather.humidity + Math.floor(Math.random() * 20 - 10),
       windSpeed: town.weather.windSpeed + Math.floor(Math.random() * 10 - 5),
       precipitation: Math.floor(Math.random() * 30),
-      hourly: i === 0 ? generateHourlyForecast(baseTemp, condition) : undefined
+      hourly: generateHourlyForecast(baseTemp + tempVariation, condition) // Generate hourly for all days
     };
     
     forecast.push(dayForecast);
