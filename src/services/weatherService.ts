@@ -23,12 +23,12 @@ interface ForecastData {
   }>;
 }
 
-// For now, we'll use environment variable. In production, this should be in Supabase secrets
-const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
+// Replace 'YOUR_API_KEY_HERE' with your actual OpenWeatherMap API key
+const API_KEY = 'YOUR_API_KEY_HERE';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 export const fetchWeatherData = async (lat: number, lng: number): Promise<WeatherData> => {
-  if (!API_KEY) {
+  if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
     console.warn('OpenWeather API key not found, using mock data');
     return generateMockWeather();
   }
@@ -58,7 +58,7 @@ export const fetchWeatherData = async (lat: number, lng: number): Promise<Weathe
 };
 
 export const fetchForecastData = async (lat: number, lng: number): Promise<ForecastData[]> => {
-  if (!API_KEY) {
+  if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
     console.warn('OpenWeather API key not found, using mock data');
     return generateMockForecast();
   }
