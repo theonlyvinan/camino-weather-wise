@@ -48,20 +48,18 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
     }
   };
 
-  // Get high/low temp colors
-  const getHighTempColor = (temp: number) => {
-    const celsius = isCelsius ? temp : (temp - 32) * 5/9;
-    if (celsius >= 30) return 'text-red-400';
-    if (celsius >= 25) return 'text-orange-400';
-    if (celsius >= 20) return 'text-yellow-400';
+  // Temperature color functions that always use original Celsius values
+  const getHighTempColor = (tempCelsius: number) => {
+    if (tempCelsius >= 30) return 'text-red-400';
+    if (tempCelsius >= 25) return 'text-orange-400';
+    if (tempCelsius >= 20) return 'text-yellow-400';
     return 'text-foreground';
   };
 
-  const getLowTempColor = (temp: number) => {
-    const celsius = isCelsius ? temp : (temp - 32) * 5/9;
-    if (celsius <= 5) return 'text-blue-400';
-    if (celsius <= 10) return 'text-cyan-400';
-    if (celsius <= 15) return 'text-slate-400';
+  const getLowTempColor = (tempCelsius: number) => {
+    if (tempCelsius <= 5) return 'text-blue-400';
+    if (tempCelsius <= 10) return 'text-cyan-400';
+    if (tempCelsius <= 15) return 'text-slate-400';
     return 'text-muted-foreground';
   };
 
