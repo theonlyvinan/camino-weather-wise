@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Navigation, MapPin, Thermometer } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Navigation, MapPin, Thermometer, Clock } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import TownCard from '@/components/TownCard';
 import WeatherDetail from '@/components/WeatherDetail';
@@ -8,15 +8,34 @@ import WeatherDisplay from '@/components/WeatherDisplay';
 import { useLocationService } from '@/components/LocationService';
 import { useForecast } from '@/hooks/useWeather';
 import { caminoTowns, CaminoTown } from '@/data/caminoTowns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 const Index = () => {
   const [selectedTown, setSelectedTown] = useState<CaminoTown | null>(null);
   const [isCelsius, setIsCelsius] = useState(true);
+  const [currentSpainTime, setCurrentSpainTime] = useState('');
   const { currentTown, nextTown, userLocation } = useLocationService();
   const currentTownForecast = useForecast(
     selectedTown?.coordinates.lat || 0, 
     selectedTown?.coordinates.lng || 0
   );
+
+  // Spain timezone
+  const SPAIN_TIMEZONE = 'Europe/Madrid';
+
+  // Update Spain time every minute
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const spainTime = formatInTimeZone(now, SPAIN_TIMEZONE, 'h:mm a');
+      setCurrentSpainTime(spainTime);
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleTownClick = (town: CaminoTown) => {
     setSelectedTown(town);
@@ -65,6 +84,13 @@ const Index = () => {
           <p className="text-primary-foreground/80 text-sm">
             Live weather forecast for the Camino Frances Way
           </p>
+          
+          {/* Current Time in Spain */}
+          <div className="flex items-center gap-2 mt-2 text-xs text-primary-foreground/90 bg-white/10 rounded-lg px-2 py-1">
+            <Clock className="h-3 w-3" />
+            <span>Spain time: {currentSpainTime}</span>
+          </div>
+          
           {userLocation && (
             <div className="flex items-center gap-2 mt-2 text-xs text-primary-foreground/90">
               <MapPin className="h-3 w-3" />
