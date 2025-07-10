@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, Loader2, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -120,12 +121,14 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
 
   const handleElevationClick = () => {
     if (nextTown) {
-      // Create Google Maps directions URL from current town to next town
-      const directionsUrl = `https://www.google.com/maps/dir/${town.coordinates.lat},${town.coordinates.lng}/${nextTown.coordinates.lat},${nextTown.coordinates.lng}/@${town.coordinates.lat},${town.coordinates.lng},12z/data=!3m1!4b1!4m2!4m1!3e2`;
+      // Create Google Maps directions URL with proper encoding and walking directions
+      const origin = `${town.coordinates.lat},${town.coordinates.lng}`;
+      const destination = `${nextTown.coordinates.lat},${nextTown.coordinates.lng}`;
+      const directionsUrl = `https://www.google.com/maps/dir/${encodeURIComponent(origin)}/${encodeURIComponent(destination)}/data=!3m1!4b1!4m2!4m1!3e2`;
       window.open(directionsUrl, '_blank');
     } else {
       // If no next town, just show current location
-      const googleMapsUrl = `https://www.google.com/maps/@${town.coordinates.lat},${town.coordinates.lng},17z`;
+      const googleMapsUrl = `https://www.google.com/maps/@${town.coordinates.lat},${town.coordinates.lng},15z`;
       window.open(googleMapsUrl, '_blank');
     }
   };
