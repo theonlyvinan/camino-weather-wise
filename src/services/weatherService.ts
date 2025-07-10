@@ -75,7 +75,7 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
     });
     
     // Convert to our format
-    const forecast: ForecastData[] = Object.entries(dailyData).slice(0, 10).map(([date, items]) => {
+    const forecast: ForecastData[] = Object.entries(dailyData).slice(0, 10).map(([date, items], dayIndex) => {
       const temps = items.map(item => item.main.temp);
       const high = Math.round(Math.max(...temps));
       const low = Math.round(Math.min(...temps));
@@ -83,17 +83,20 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
       // Use midday weather for main condition
       const middayItem = items.find(item => item.dt_txt.includes('12:00:00')) || items[0];
       
-      // Generate hourly data for today only
-      const hourly = date === Object.keys(dailyData)[0] ? 
-        items.filter(item => new Date(item.dt * 1000).getHours() % 3 === 0).map(item => ({
-          time: new Date(item.dt * 1000).toLocaleTimeString('en-US', { 
-            hour: 'numeric', 
-            hour12: true 
-          }),
-          temperature: Math.round(item.main.temp),
-          condition: item.weather[0].description,
-          precipitation: Math.round(item.pop * 100)
-        })) : [];
+      // Generate hourly data for today only (first day in the list)
+      const hourly = dayIndex === 0 ? 
+        items.map(item => {
+          const itemDate = new Date(item.dt * 1000);
+          return {
+            time: itemDate.toLocaleTimeString('en-US', { 
+              hour: 'numeric', 
+              hour12: true 
+            }),
+            temperature: Math.round(item.main.temp),
+            condition: item.weather[0].description,
+            precipitation: Math.round((item.pop || 0) * 100)
+          };
+        }) : [];
       
       return {
         date,
@@ -102,7 +105,7 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
         condition: middayItem.weather[0].description,
         humidity: middayItem.main.humidity,
         windSpeed: Math.round(middayItem.wind.speed * 3.6),
-        precipitation: Math.round(middayItem.pop * 100),
+        precipitation: Math.round((middayItem.pop || 0) * 100),
         hourly
       };
     });
