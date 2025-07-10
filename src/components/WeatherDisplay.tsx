@@ -113,19 +113,6 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
           </div>
         </div>
       )}
-      
-      {showDetails && (
-        <div className="flex items-center gap-3">
-          <div className={`flex items-center gap-1 text-muted-foreground ${classes.details}`}>
-            <Droplets className="h-3 w-3" />
-            <span>{weather.humidity}%</span>
-          </div>
-          <div className={`flex items-center gap-1 text-muted-foreground ${classes.details}`}>
-            <Wind className="h-3 w-3" />
-            <span>{weather.windSpeed} km/h</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
