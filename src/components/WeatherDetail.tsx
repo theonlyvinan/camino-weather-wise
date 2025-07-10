@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine, Loader2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -52,7 +51,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      const spainTime = formatInTimeZone(now, SPAIN_TIMEZONE, 'HH:mm');
+      const spainTime = formatInTimeZone(now, SPAIN_TIMEZONE, 'h:mm a');
       setCurrentSpainTime(spainTime);
     };
 
