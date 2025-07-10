@@ -1,8 +1,8 @@
+
 import React from 'react';
-import { MapPin, Mountain, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { MapPin, Mountain } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import WeatherDisplay from './WeatherDisplay';
-import { caminoTowns } from '@/data/caminoTowns';
 
 interface TownCardProps {
   town: {
@@ -49,38 +49,6 @@ const TownCard: React.FC<TownCardProps> = ({
     return 'text-muted-foreground';
   };
 
-  // Calculate elevation gain/loss to next town
-  const getElevationChange = () => {
-    const currentTownIndex = caminoTowns.findIndex(t => t.id === town.id);
-    const nextTown = currentTownIndex < caminoTowns.length - 1 ? caminoTowns[currentTownIndex + 1] : null;
-    
-    if (!nextTown) return null;
-    
-    const elevationChange = nextTown.elevation - town.elevation;
-    
-    if (elevationChange > 0) {
-      return {
-        text: `+${elevationChange}m`,
-        icon: <TrendingUp className="h-3 w-3 text-green-400" />,
-        color: 'text-green-400'
-      };
-    } else if (elevationChange < 0) {
-      return {
-        text: `${elevationChange}m`,
-        icon: <TrendingDown className="h-3 w-3 text-blue-400" />,
-        color: 'text-blue-400'
-      };
-    } else {
-      return {
-        text: '0m',
-        icon: <Minus className="h-3 w-3 text-muted-foreground" />,
-        color: 'text-muted-foreground'
-      };
-    }
-  };
-
-  const elevationChange = getElevationChange();
-
   return (
     <Card 
       className={`p-4 cursor-pointer transition-all duration-200 ${getBorderColor()}`}
@@ -112,12 +80,6 @@ const TownCard: React.FC<TownCardProps> = ({
       <div className="flex items-center justify-between text-sm text-muted-foreground font-medium mb-2">
         <div className="flex items-center gap-3">
           <span>{town.distance} km</span>
-          {elevationChange && (
-            <div className="flex items-center gap-1">
-              {elevationChange.icon}
-              <span className={elevationChange.color}>{elevationChange.text}</span>
-            </div>
-          )}
         </div>
         <div className="flex items-center gap-1">
           <Mountain className="h-3 w-3" />
