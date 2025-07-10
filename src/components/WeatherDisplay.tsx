@@ -52,15 +52,15 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
   if (weather.isLoading) {
     return (
       <div className="flex items-center gap-2">
-        <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-        <span className="text-sm text-gray-500">Loading weather...</span>
+        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        <span className="text-sm text-muted-foreground">Loading weather...</span>
       </div>
     );
   }
 
   if (weather.error) {
     return (
-      <div className="text-sm text-red-500">
+      <div className="text-sm text-destructive">
         Weather unavailable
       </div>
     );
@@ -69,21 +69,21 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <div className={`text-gray-900 ${classes.temp}`}>
+        <div className={`text-foreground ${classes.temp}`}>
           {convertTemp(weather.temperature)}°{isCelsius ? 'C' : 'F'}
         </div>
-        <div className={`text-gray-600 font-medium capitalize ${classes.condition}`}>
+        <div className={`text-muted-foreground font-medium capitalize ${classes.condition}`}>
           {weather.condition}
         </div>
       </div>
       
       {showDetails && (
         <div className="flex items-center gap-3">
-          <div className={`flex items-center gap-1 text-gray-600 ${classes.details}`}>
+          <div className={`flex items-center gap-1 text-muted-foreground ${classes.details}`}>
             <Droplets className="h-3 w-3" />
             <span>{weather.humidity}%</span>
           </div>
-          <div className={`flex items-center gap-1 text-gray-600 ${classes.details}`}>
+          <div className={`flex items-center gap-1 text-muted-foreground ${classes.details}`}>
             <Wind className="h-3 w-3" />
             <span>{weather.windSpeed} km/h</span>
           </div>
