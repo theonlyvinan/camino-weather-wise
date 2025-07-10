@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine, Loader2 } from 'lucide-react';
+
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine, Loader2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { caminoTowns } from '@/data/caminoTowns';
+import { formatInTimeZone } from 'date-fns-tz';
 
 interface WeatherDetailProps {
   town: {
@@ -41,6 +43,37 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
   isLoading = false
 }) => {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [currentSpainTime, setCurrentSpainTime] = useState('');
+
+  // Spain timezone
+  const SPAIN_TIMEZONE = 'Europe/Madrid';
+
+  // Update Spain time every minute
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const spainTime = formatInTimeZone(now, SPAIN_TIMEZONE, 'HH:mm');
+      setCurrentSpainTime(spainTime);
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Helper function to check if a date is today in Spain
+  const isToday = (dateString: string) => {
+    const today = new Date();
+    const todayInSpain = formatInTimeZone(today, SPAIN_TIMEZONE, 'yyyy-MM-dd');
+    return dateString === todayInSpain;
+  };
+
+  // Helper function to format date for Spain timezone
+  const formatDateForSpain = (dateString: string, format: string) => {
+    const date = new Date(dateString + 'T12:00:00'); // Add time to avoid timezone issues
+    return formatInTimeZone(date, SPAIN_TIMEZONE, format);
+  };
 
   // Find current town and next town logic
   const currentTownIndex = caminoTowns.findIndex(t => t.id === town.id);
@@ -65,7 +98,6 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     return 'hsl(0, 0%, 80%)'; // light gray
   };
 
-  // getWeatherIcon, handleShadeClick, getPathShadeInfo, createSmoothPath functions
   const getWeatherIcon = (condition: string) => {
     if (condition.includes('sunny') || condition.includes('clear')) {
       return <Sun className="h-5 w-5" />;
@@ -182,6 +214,14 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
           </div>
         </div>
 
+        {/* Current Time in Spain */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/30 rounded-lg px-3 py-2">
+            <Clock className="h-4 w-4" />
+            <span>Current time in Spain: {currentSpainTime}</span>
+          </div>
+        </div>
+
         {/* Path Shade Information */}
         <div className="mb-6">
           <Card 
@@ -219,12 +259,8 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                           : 'bg-card border border-border text-muted-foreground hover:bg-muted/80'
                       }`}
                     >
-                      {index === 0 ? 'Today' : 
-                        new Date(day.date).toLocaleDateString('en-US', { 
-                          weekday: 'short', 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })
+                      {isToday(day.date) ? 'Today' : 
+                        formatDateForSpain(day.date, 'EEE, MMM d')
                       }
                     </button>
                   );
@@ -236,12 +272,8 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
             {selectedForecast && selectedForecast.hourly && selectedForecast.hourly.length > 0 && (
               <div className="mb-6">
                 <h2 className="text-lg font-semibold text-foreground mb-3">
-                  {selectedDayIndex === 0 ? "Today's" : 
-                    new Date(selectedForecast.date).toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      month: 'short', 
-                      day: 'numeric' 
-                    })
+                  {isToday(selectedForecast.date) ? "Today's" : 
+                    formatDateForSpain(selectedForecast.date, 'EEEE, MMMM d')
                   } Hourly Forecast
                 </h2>
                 <Card className="p-4 border-border bg-card">
@@ -373,12 +405,8 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                         </div>
                         <div>
                           <div className="font-medium text-foreground">
-                            {index === 0 ? 'Today' : 
-                              new Date(day.date).toLocaleDateString('en-US', { 
-                                weekday: 'short', 
-                                month: 'short', 
-                                day: 'numeric' 
-                              })
+                            {isToday(day.date) ? 'Today' : 
+                              formatDateForSpain(day.date, 'EEE, MMM d')
                             }
                           </div>
                           <div className="text-sm text-muted-foreground capitalize">
