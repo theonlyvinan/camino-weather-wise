@@ -27,11 +27,6 @@ const API_KEY = '57b7c2030d5a783496f29ad6fff3f8d8';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 export const fetchWeatherData = async (lat: number, lng: number): Promise<WeatherData> => {
-  if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
-    console.warn('OpenWeather API key not found, using mock data');
-    return generateMockWeather();
-  }
-
   try {
     const response = await fetch(
       `${BASE_URL}/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`
@@ -57,11 +52,6 @@ export const fetchWeatherData = async (lat: number, lng: number): Promise<Weathe
 };
 
 export const fetchForecastData = async (lat: number, lng: number): Promise<ForecastData[]> => {
-  if (!API_KEY || API_KEY === 'YOUR_API_KEY_HERE') {
-    console.warn('OpenWeather API key not found, using mock data');
-    return generateMockForecast();
-  }
-
   try {
     const response = await fetch(
       `${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`
