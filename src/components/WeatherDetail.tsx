@@ -166,10 +166,10 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
       elevationIcon = <TrendingUp className="h-4 w-4 text-green-400" />;
     } else if (elevationChange < 0) {
       elevationText = `${elevationChange}m elevation loss`;
-      elevationIcon = <TrendingDown className="h-4 w-4 text-blue-400" />;
+      elevationIcon = <TrendingDown className="h-4 w-4 text-green-400" />;
     } else {
       elevationText = 'No elevation change';
-      elevationIcon = <Minus className="h-4 w-4 text-muted-foreground" />;
+      elevationIcon = <Minus className="h-4 w-4 text-green-400" />;
     }
     
     return { 
@@ -295,36 +295,36 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
             <>
               {/* Shade Information Card */}
               <Card 
-                className="p-4 border-green-200 bg-green-50 cursor-pointer hover:bg-green-100 transition-colors"
+                className="p-4 bg-black text-white cursor-pointer hover:bg-gray-900 transition-colors border-gray-700"
                 onClick={handleShadeClick}
               >
                 <div className="flex items-center gap-3">
-                  <TreePine className="h-5 w-5 text-green-600" />
+                  <TreePine className="h-5 w-5 text-green-400" />
                   <div className="flex-1">
-                    <h3 className="font-bold text-green-800 mb-1">Path Shade</h3>
-                    <p className="text-sm text-green-700 font-medium mb-1">
+                    <h3 className="font-bold mb-1">Path Shade</h3>
+                    <p className="text-sm font-medium mb-1">
                       To {nextTown!.name} ({pathInfo.distance}km)
                     </p>
-                    <p className="text-sm text-green-700 font-medium">Shade: {pathInfo.shade}</p>
-                    <p className="text-xs text-green-600 mt-1">Click to view route in Google Maps</p>
+                    <p className="text-sm font-medium">Shade: {pathInfo.shade}</p>
+                    <p className="text-xs text-gray-400 mt-1">Click to view route in Google Maps</p>
                   </div>
                 </div>
               </Card>
 
               {/* Elevation Information Card */}
               <Card 
-                className="p-4 border-blue-200 bg-blue-50 cursor-pointer hover:bg-blue-100 transition-colors"
+                className="p-4 bg-black text-white cursor-pointer hover:bg-gray-900 transition-colors border-gray-700"
                 onClick={handleElevationClick}
               >
                 <div className="flex items-center gap-3">
                   {pathInfo.elevationIcon}
                   <div className="flex-1">
-                    <h3 className="font-bold text-blue-800 mb-1">Elevation Change</h3>
-                    <p className="text-sm text-blue-700 font-medium mb-1">
+                    <h3 className="font-bold mb-1">Elevation Change</h3>
+                    <p className="text-sm font-medium mb-1">
                       To {nextTown!.name} ({pathInfo.distance}km)
                     </p>
-                    <p className="text-sm text-blue-700 font-medium">{pathInfo.elevationText}</p>
-                    <p className="text-xs text-blue-600 mt-1">Click to view route in Google Maps</p>
+                    <p className="text-sm font-medium">{pathInfo.elevationText}</p>
+                    <p className="text-xs text-gray-400 mt-1">Click to view route in Google Maps</p>
                   </div>
                 </div>
               </Card>
