@@ -82,7 +82,7 @@ const TownCard: React.FC<TownCardProps> = ({
         <span>{town.distance} km</span>
         <div className="flex items-center gap-1">
           <Mountain className="h-3 w-3" />
-          <span>{town.elevation}m elevation</span>
+          <span>{town.elevation}m</span>
         </div>
       </div>
       

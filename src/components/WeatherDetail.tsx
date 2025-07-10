@@ -131,6 +131,18 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     }
   };
 
+  const handleElevationClick = () => {
+    if (nextTown) {
+      // Create Google Maps directions URL from current town to next town
+      const directionsUrl = `https://www.google.com/maps/dir/${town.coordinates.lat},${town.coordinates.lng}/${nextTown.coordinates.lat},${nextTown.coordinates.lng}/@${town.coordinates.lat},${town.coordinates.lng},12z/data=!3m1!4b1!4m2!4m1!3e2`;
+      window.open(directionsUrl, '_blank');
+    } else {
+      // If no next town, just show current location
+      const googleMapsUrl = `https://www.google.com/maps/@${town.coordinates.lat},${town.coordinates.lng},17z`;
+      window.open(googleMapsUrl, '_blank');
+    }
+  };
+
   // Generate path shade information with elevation gain/fall
   const getPathShadeInfo = () => {
     if (!nextTown) {
@@ -242,6 +254,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto">
+        {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Button 
             variant="ghost" 
@@ -265,40 +278,61 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
           </div>
         </div>
 
-        {/* Path Shade Information */}
-        <div className="mb-6">
-          <Card 
-            className="p-4 border-primary/20 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
-            onClick={handleShadeClick}
-          >
-            <div className="flex items-center gap-3">
-              <TreePine className="h-5 w-5 text-primary" />
-              <div className="flex-1">
-                <h3 className="font-bold text-white mb-1">
-                  {pathInfo.isComplete ? 'Journey Complete!' : 'Path Information'}
-                </h3>
-                {pathInfo.isComplete ? (
+        {/* Path Information Cards */}
+        <div className="mb-6 space-y-3">
+          {pathInfo.isComplete ? (
+            <Card className="p-4 border-primary/20 bg-primary/5">
+              <div className="flex items-center gap-3">
+                <TreePine className="h-5 w-5 text-primary" />
+                <div className="flex-1">
+                  <h3 className="font-bold text-white mb-1">Journey Complete!</h3>
                   <p className="text-sm text-white font-bold">You've reached Santiago! Congratulations!</p>
-                ) : (
-                  <>
-                    <p className="text-sm text-white font-bold mb-1">
-                      Path to {nextTown!.name} ({pathInfo.distance}km)
-                    </p>
-                    <div className="flex items-center gap-2 mb-1">
-                      {pathInfo.elevationIcon}
-                      <span className="text-sm text-white font-bold">{pathInfo.elevationText}</span>
-                    </div>
-                    <p className="text-sm text-white font-bold">Shade: {pathInfo.shade}</p>
-                  </>
-                )}
-                <p className="text-xs text-white/80 mt-1 font-bold">
-                  {pathInfo.isComplete ? 'Click to view location' : 'Click to view route in Google Maps'}
-                </p>
+                  <p className="text-xs text-white/80 mt-1 font-bold">Click to view location</p>
+                </div>
               </div>
-            </div>
-          </Card>
+            </Card>
+          ) : (
+            <>
+              {/* Shade Information Card */}
+              <Card 
+                className="p-4 border-green-200 bg-green-50 cursor-pointer hover:bg-green-100 transition-colors"
+                onClick={handleShadeClick}
+              >
+                <div className="flex items-center gap-3">
+                  <TreePine className="h-5 w-5 text-green-600" />
+                  <div className="flex-1">
+                    <h3 className="font-bold text-green-800 mb-1">Path Shade</h3>
+                    <p className="text-sm text-green-700 font-medium mb-1">
+                      To {nextTown!.name} ({pathInfo.distance}km)
+                    </p>
+                    <p className="text-sm text-green-700 font-medium">Shade: {pathInfo.shade}</p>
+                    <p className="text-xs text-green-600 mt-1">Click to view route in Google Maps</p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Elevation Information Card */}
+              <Card 
+                className="p-4 border-blue-200 bg-blue-50 cursor-pointer hover:bg-blue-100 transition-colors"
+                onClick={handleElevationClick}
+              >
+                <div className="flex items-center gap-3">
+                  {pathInfo.elevationIcon}
+                  <div className="flex-1">
+                    <h3 className="font-bold text-blue-800 mb-1">Elevation Change</h3>
+                    <p className="text-sm text-blue-700 font-medium mb-1">
+                      To {nextTown!.name} ({pathInfo.distance}km)
+                    </p>
+                    <p className="text-sm text-blue-700 font-medium">{pathInfo.elevationText}</p>
+                    <p className="text-xs text-blue-600 mt-1">Click to view route in Google Maps</p>
+                  </div>
+                </div>
+              </Card>
+            </>
+          )}
         </div>
 
+        {/* Day Selection Tabs and Forecast */}
         {forecast.length > 0 && (
           <>
             {/* Day Selection Tabs */}
