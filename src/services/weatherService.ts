@@ -76,7 +76,7 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
     });
     
     // Convert to our format
-    const forecast: ForecastData[] = Object.entries(dailyData).slice(0, 10).map(([date, items], dayIndex) => {
+    const forecast: ForecastData[] = Object.entries(dailyData).slice(0, 10).map(([date, items]) => {
       const temps = items.map(item => item.main.temp);
       const high = Math.round(Math.max(...temps));
       const low = Math.round(Math.min(...temps));
@@ -84,8 +84,8 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
       // Use midday weather for main condition
       const middayItem = items.find(item => item.dt_txt.includes('12:00:00')) || items[0];
       
-      // Generate enhanced hourly data for today only (first day in the list)
-      const hourly = dayIndex === 0 ? generateEnhancedHourlyData(items, high, low) : [];
+      // Generate enhanced hourly data for ALL days, not just the first one
+      const hourly = generateEnhancedHourlyData(items, high, low);
       
       return {
         date,
@@ -106,10 +106,13 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
   }
 };
 
-// Generate enhanced hourly data that properly reflects daily high/low
+// Generate enhanced hourly data that properly reflects daily high/low with extended time range
 const generateEnhancedHourlyData = (apiItems: any[], dailyHigh: number, dailyLow: number) => {
-  // Create 8 hourly entries from 6 AM to 9 PM (every 3 hours)
-  const hours = ['6:00 AM', '9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM'];
+  // Create hourly entries from 12:00 AM to 11:00 PM (every 3 hours)
+  const hours = [
+    '12:00 AM', '3:00 AM', '6:00 AM', '9:00 AM', 
+    '12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM', '11:00 PM'
+  ];
   
   // Map API items by hour for reference
   const apiItemsByHour: { [key: string]: any } = {};
@@ -119,7 +122,9 @@ const generateEnhancedHourlyData = (apiItems: any[], dailyHigh: number, dailyLow
   });
   
   return hours.map((timeStr, index) => {
-    const hour = index === 0 ? 6 : index === 1 ? 9 : index === 2 ? 12 : index === 3 ? 15 : index === 4 ? 18 : 21;
+    // Map time strings to 24-hour format
+    const hourMapping = [0, 3, 6, 9, 12, 15, 18, 21, 23];
+    const hour = hourMapping[index];
     
     // Use API data if available, otherwise interpolate
     const apiItem = apiItemsByHour[hour.toString()];
@@ -133,28 +138,34 @@ const generateEnhancedHourlyData = (apiItems: any[], dailyHigh: number, dailyLow
       condition = apiItem.weather[0].description;
       precipitation = Math.round((apiItem.pop || 0) * 100);
     } else {
-      // Interpolate temperature based on time of day
-      // Peak heat around 3 PM, coolest in early morning
+      // Enhanced interpolation based on time of day with realistic temperature curves
       const tempRange = dailyHigh - dailyLow;
       let tempFactor: number;
       
-      if (hour <= 6) tempFactor = 0.1; // Early morning - coolest
-      else if (hour <= 9) tempFactor = 0.3; // Morning warming
-      else if (hour <= 12) tempFactor = 0.7; // Mid day
-      else if (hour <= 15) tempFactor = 1.0; // Peak heat (3 PM)
-      else if (hour <= 18) tempFactor = 0.8; // Evening cooling
-      else tempFactor = 0.5; // Night
+      // More realistic temperature curve throughout the day
+      if (hour === 0) tempFactor = 0.2; // Midnight - cool
+      else if (hour === 3) tempFactor = 0.1; // 3 AM - coolest
+      else if (hour === 6) tempFactor = 0.15; // 6 AM - still cool
+      else if (hour === 9) tempFactor = 0.4; // 9 AM - warming up
+      else if (hour === 12) tempFactor = 0.8; // Noon - getting hot
+      else if (hour === 15) tempFactor = 1.0; // 3 PM - peak heat
+      else if (hour === 18) tempFactor = 0.7; // 6 PM - cooling down
+      else if (hour === 21) tempFactor = 0.5; // 9 PM - evening cool
+      else tempFactor = 0.3; // 11 PM - night cool
       
       temperature = Math.round(dailyLow + (tempRange * tempFactor));
       
-      // Ensure we hit the actual daily high at least once (around 3 PM)
-      if (hour === 15) {
+      // Ensure we actually hit the daily high and low at appropriate times
+      if (hour === 15) { // 3 PM should be the hottest
         temperature = dailyHigh;
+      } else if (hour === 3) { // 3 AM should be the coolest
+        temperature = dailyLow;
       }
       
-      // Use a reasonable default condition and precipitation
-      condition = 'partly cloudy';
-      precipitation = Math.round(Math.random() * 20);
+      // Vary conditions based on time and temperature
+      const conditions = ['clear', 'partly cloudy', 'cloudy', 'light rain'];
+      condition = conditions[Math.floor(Math.random() * conditions.length)];
+      precipitation = Math.round(Math.random() * 25);
     }
     
     return {
@@ -190,8 +201,8 @@ const generateMockForecast = (): ForecastData[] => {
     const conditions = ['sunny', 'partly cloudy', 'cloudy', 'light rain'];
     const condition = conditions[Math.floor(Math.random() * conditions.length)];
     
-    // Generate proper hourly data for first day only
-    const hourly = i === 0 ? generateMockHourlyData(high, low) : [];
+    // Generate proper hourly data for ALL days
+    const hourly = generateMockHourlyData(high, low);
     
     forecast.push({
       date: date.toISOString().split('T')[0],
@@ -209,25 +220,31 @@ const generateMockForecast = (): ForecastData[] => {
 };
 
 const generateMockHourlyData = (dailyHigh: number, dailyLow: number) => {
-  const hours = ['6:00 AM', '9:00 AM', '12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM'];
+  const hours = [
+    '12:00 AM', '3:00 AM', '6:00 AM', '9:00 AM', 
+    '12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM', '11:00 PM'
+  ];
   const tempRange = dailyHigh - dailyLow;
   
   return hours.map((time, index) => {
     let tempFactor: number;
     
-    if (index === 0) tempFactor = 0.1; // 6 AM - coolest
-    else if (index === 1) tempFactor = 0.3; // 9 AM
-    else if (index === 2) tempFactor = 0.7; // 12 PM
-    else if (index === 3) tempFactor = 1.0; // 3 PM - hottest
-    else if (index === 4) tempFactor = 0.8; // 6 PM
-    else tempFactor = 0.5; // 9 PM
+    // Same temperature curve as the real data
+    if (index === 0) tempFactor = 0.2; // Midnight
+    else if (index === 1) tempFactor = 0.1; // 3 AM - coolest
+    else if (index === 2) tempFactor = 0.15; // 6 AM
+    else if (index === 3) tempFactor = 0.4; // 9 AM
+    else if (index === 4) tempFactor = 0.8; // Noon
+    else if (index === 5) tempFactor = 1.0; // 3 PM - hottest
+    else if (index === 6) tempFactor = 0.7; // 6 PM
+    else if (index === 7) tempFactor = 0.5; // 9 PM
+    else tempFactor = 0.3; // 11 PM
     
     let temperature = Math.round(dailyLow + (tempRange * tempFactor));
     
-    // Ensure we hit the actual daily high at 3 PM
-    if (index === 3) {
-      temperature = dailyHigh;
-    }
+    // Ensure we hit the actual daily high and low
+    if (index === 5) temperature = dailyHigh; // 3 PM
+    if (index === 1) temperature = dailyLow; // 3 AM
     
     return {
       time,
