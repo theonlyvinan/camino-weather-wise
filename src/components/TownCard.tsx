@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { MapPin, TreePine, Mountain, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { MapPin, Mountain, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import WeatherDisplay from './WeatherDisplay';
 import { caminoTowns } from '@/data/caminoTowns';
@@ -12,7 +11,6 @@ interface TownCardProps {
     distance: number;
     elevation: number;
     coordinates: { lat: number; lng: number };
-    shade: string;
   };
   isCurrent?: boolean;
   isNext?: boolean;
@@ -125,12 +123,6 @@ const TownCard: React.FC<TownCardProps> = ({
           <Mountain className="h-3 w-3" />
           <span>{town.elevation}m</span>
         </div>
-      </div>
-      
-      {/* Shade information */}
-      <div className="flex items-center gap-1 mb-2 text-xs text-muted-foreground bg-muted px-2 py-1 rounded-md">
-        <TreePine className="h-3 w-3" />
-        <span className="truncate">{town.shade}</span>
       </div>
       
       <div className="text-xs text-muted-foreground font-medium text-right">
