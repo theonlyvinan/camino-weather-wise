@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine, Loader2, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -266,7 +267,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
           </Button>
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-foreground">{town.name}</h1>
-            <p className="text-muted-foreground text-sm">{town.distance} km • {town.elevation} m elevation</p>
+            <p className="text-muted-foreground text-sm">{town.distance} km • {town.elevation} m</p>
           </div>
         </div>
 
@@ -285,9 +286,9 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
               <div className="flex items-center gap-3">
                 <TreePine className="h-5 w-5 text-primary" />
                 <div className="flex-1">
-                  <h3 className="font-bold text-white mb-1">Journey Complete!</h3>
-                  <p className="text-sm text-white font-bold">You've reached Santiago! Congratulations!</p>
-                  <p className="text-xs text-white/80 mt-1 font-bold">Click to view location</p>
+                  <h3 className="font-bold text-foreground mb-1">Journey Complete!</h3>
+                  <p className="text-sm text-foreground font-bold">You've reached Santiago! Congratulations!</p>
+                  <p className="text-xs text-muted-foreground mt-1 font-bold">Click to view location</p>
                 </div>
               </div>
             </Card>
@@ -295,36 +296,36 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
             <>
               {/* Shade Information Card */}
               <Card 
-                className="p-4 bg-black text-white cursor-pointer hover:bg-gray-900 transition-colors border-gray-700"
+                className="p-4 cursor-pointer hover:shadow-md transition-colors border-border bg-card"
                 onClick={handleShadeClick}
               >
                 <div className="flex items-center gap-3">
                   <TreePine className="h-5 w-5 text-green-400" />
                   <div className="flex-1">
-                    <h3 className="font-bold mb-1">Path Shade</h3>
-                    <p className="text-sm font-medium mb-1">
+                    <h3 className="font-bold text-foreground mb-1">Path Shade</h3>
+                    <p className="text-sm text-foreground font-medium mb-1">
                       To {nextTown!.name} ({pathInfo.distance}km)
                     </p>
-                    <p className="text-sm font-medium">Shade: {pathInfo.shade}</p>
-                    <p className="text-xs text-gray-400 mt-1">Click to view route in Google Maps</p>
+                    <p className="text-sm text-foreground font-medium">Shade: {pathInfo.shade}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Click to view route in Google Maps</p>
                   </div>
                 </div>
               </Card>
 
               {/* Elevation Information Card */}
               <Card 
-                className="p-4 bg-black text-white cursor-pointer hover:bg-gray-900 transition-colors border-gray-700"
+                className="p-4 cursor-pointer hover:shadow-md transition-colors border-border bg-card"
                 onClick={handleElevationClick}
               >
                 <div className="flex items-center gap-3">
                   {pathInfo.elevationIcon}
                   <div className="flex-1">
-                    <h3 className="font-bold mb-1">Elevation Change</h3>
-                    <p className="text-sm font-medium mb-1">
+                    <h3 className="font-bold text-foreground mb-1">Elevation Change</h3>
+                    <p className="text-sm text-foreground font-medium mb-1">
                       To {nextTown!.name} ({pathInfo.distance}km)
                     </p>
-                    <p className="text-sm font-medium">{pathInfo.elevationText}</p>
-                    <p className="text-xs text-gray-400 mt-1">Click to view route in Google Maps</p>
+                    <p className="text-sm text-foreground font-medium">{pathInfo.elevationText}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Click to see elevation in Google Maps</p>
                   </div>
                 </div>
               </Card>
