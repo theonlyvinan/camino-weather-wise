@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine, Loader2, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -302,10 +301,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                 <div className="flex items-center gap-3">
                   <TreePine className="h-5 w-5 text-green-400" />
                   <div className="flex-1">
-                    <h3 className="font-bold text-foreground mb-1">Path Shade</h3>
-                    <p className="text-sm text-foreground font-medium mb-1">
-                      To {nextTown!.name} ({pathInfo.distance}km)
-                    </p>
+                    <h3 className="font-bold text-foreground mb-1">Path shade to {nextTown!.name} ({pathInfo.distance}km)</h3>
                     <p className="text-sm text-foreground font-medium">Shade: {pathInfo.shade}</p>
                     <p className="text-xs text-muted-foreground mt-1">Click to view route in Google Maps</p>
                   </div>
@@ -320,10 +316,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                 <div className="flex items-center gap-3">
                   {pathInfo.elevationIcon}
                   <div className="flex-1">
-                    <h3 className="font-bold text-foreground mb-1">Elevation Change</h3>
-                    <p className="text-sm text-foreground font-medium mb-1">
-                      To {nextTown!.name} ({pathInfo.distance}km)
-                    </p>
+                    <h3 className="font-bold text-foreground mb-1">Elevation change to {nextTown!.name} ({pathInfo.distance}km)</h3>
                     <p className="text-sm text-foreground font-medium">{pathInfo.elevationText}</p>
                     <p className="text-xs text-muted-foreground mt-1">Click to see elevation in Google Maps</p>
                   </div>
