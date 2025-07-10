@@ -134,7 +134,13 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
   // Generate path shade information with elevation gain/fall
   const getPathShadeInfo = () => {
     if (!nextTown) {
-      return "You've reached Santiago! Congratulations on completing the Camino!";
+      return {
+        isComplete: true,
+        distance: 0,
+        elevationText: '',
+        elevationIcon: null,
+        shade: ''
+      };
     }
     
     const distance = nextTown.distance - town.distance;
@@ -154,7 +160,13 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
       elevationIcon = <Minus className="h-4 w-4 text-muted-foreground" />;
     }
     
-    return { distance, elevationText, elevationIcon, shade: town.shade };
+    return { 
+      isComplete: false,
+      distance, 
+      elevationText, 
+      elevationIcon, 
+      shade: town.shade 
+    };
   };
 
   const createSmoothPath = (points: Array<{x: number, y: number}>) => {
@@ -263,12 +275,14 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
               <TreePine className="h-5 w-5 text-primary" />
               <div className="flex-1">
                 <h3 className="font-bold text-white mb-1">
-                  {nextTown ? 'Path Information' : 'Journey Complete!'}
+                  {pathInfo.isComplete ? 'Journey Complete!' : 'Path Information'}
                 </h3>
-                {nextTown ? (
+                {pathInfo.isComplete ? (
+                  <p className="text-sm text-white font-bold">You've reached Santiago! Congratulations!</p>
+                ) : (
                   <>
                     <p className="text-sm text-white font-bold mb-1">
-                      Path to {nextTown.name} ({pathInfo.distance}km)
+                      Path to {nextTown!.name} ({pathInfo.distance}km)
                     </p>
                     <div className="flex items-center gap-2 mb-1">
                       {pathInfo.elevationIcon}
@@ -276,11 +290,9 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                     </div>
                     <p className="text-sm text-white font-bold">Shade: {pathInfo.shade}</p>
                   </>
-                ) : (
-                  <p className="text-sm text-white font-bold">You've reached Santiago! Congratulations!</p>
                 )}
                 <p className="text-xs text-white/80 mt-1 font-bold">
-                  {nextTown ? 'Click to view route in Google Maps' : 'Click to view location'}
+                  {pathInfo.isComplete ? 'Click to view location' : 'Click to view route in Google Maps'}
                 </p>
               </div>
             </div>
