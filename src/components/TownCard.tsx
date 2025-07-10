@@ -27,9 +27,9 @@ const TownCard: React.FC<TownCardProps> = ({
   isCelsius 
 }) => {
   const getBorderColor = () => {
-    if (isCurrent) return 'border-blue-400 bg-gradient-to-r from-blue-50 to-cyan-50 shadow-blue-200';
-    if (isNext) return 'border-green-400 bg-gradient-to-r from-green-50 to-emerald-50 shadow-green-200';
-    return 'border-purple-200 bg-gradient-to-r from-white to-purple-50 hover:border-purple-400 hover:shadow-purple-200';
+    if (isCurrent) return 'border-blue-300 bg-blue-50 shadow-sm';
+    if (isNext) return 'border-green-300 bg-green-50 shadow-sm';
+    return 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md';
   };
 
   const getStatusText = () => {
@@ -39,20 +39,20 @@ const TownCard: React.FC<TownCardProps> = ({
   };
 
   const getStatusColor = () => {
-    if (isCurrent) return 'text-blue-600 bg-blue-100';
-    if (isNext) return 'text-green-600 bg-green-100';
+    if (isCurrent) return 'text-blue-700 bg-blue-100';
+    if (isNext) return 'text-green-700 bg-green-100';
     return '';
   };
 
   const getIconColor = () => {
-    if (isCurrent) return 'text-blue-500';
-    if (isNext) return 'text-green-500';
-    return 'text-purple-500';
+    if (isCurrent) return 'text-blue-600';
+    if (isNext) return 'text-green-600';
+    return 'text-gray-600';
   };
 
   return (
     <Card 
-      className={`p-4 cursor-pointer transition-all duration-200 shadow-md ${getBorderColor()}`}
+      className={`p-4 cursor-pointer transition-all duration-200 ${getBorderColor()}`}
       onClick={onClick}
     >
       <div className="flex items-center justify-between mb-2">
@@ -78,17 +78,17 @@ const TownCard: React.FC<TownCardProps> = ({
         />
       </div>
       
-      <div className="text-sm text-purple-600 font-medium mb-2">
+      <div className="text-sm text-gray-600 font-medium mb-2">
         {town.distance} km • {town.elevation}m
       </div>
       
       {/* Shade information */}
-      <div className="flex items-center gap-1 mb-2 text-xs text-green-700 bg-green-50 px-2 py-1 rounded-md">
-        <TreePine className="h-3 w-3 text-green-600" />
+      <div className="flex items-center gap-1 mb-2 text-xs text-gray-700 bg-gray-100 px-2 py-1 rounded-md">
+        <TreePine className="h-3 w-3 text-gray-600" />
         <span className="truncate">{town.shade}</span>
       </div>
       
-      <div className="text-xs text-pink-500 font-medium text-right">
+      <div className="text-xs text-gray-400 font-medium text-right">
         Tap for details
       </div>
     </Card>
