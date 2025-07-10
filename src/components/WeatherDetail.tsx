@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine, Loader2, Clock } from 'lucide-react';
+import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine, Loader2, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { caminoTowns } from '@/data/caminoTowns';
@@ -131,17 +131,32 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     }
   };
 
-  // Generate path shade information
+  // Generate path shade information with elevation gain/fall
   const getPathShadeInfo = () => {
     if (!nextTown) {
       return "You've reached Santiago! Congratulations on completing the Camino!";
     }
     
     const distance = nextTown.distance - town.distance;
-    return `Path to ${nextTown.name} (${distance}km): ${town.shade}`;
+    const elevationChange = nextTown.elevation - town.elevation;
+    
+    let elevationText = '';
+    let elevationIcon = null;
+    
+    if (elevationChange > 0) {
+      elevationText = `+${elevationChange}m elevation gain`;
+      elevationIcon = <TrendingUp className="h-4 w-4 text-green-400" />;
+    } else if (elevationChange < 0) {
+      elevationText = `${elevationChange}m elevation loss`;
+      elevationIcon = <TrendingDown className="h-4 w-4 text-blue-400" />;
+    } else {
+      elevationText = 'No elevation change';
+      elevationIcon = <Minus className="h-4 w-4 text-muted-foreground" />;
+    }
+    
+    return { distance, elevationText, elevationIcon, shade: town.shade };
   };
 
-  // Create smooth curve path
   const createSmoothPath = (points: Array<{x: number, y: number}>) => {
     if (points.length < 2) return '';
     
@@ -210,6 +225,8 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     );
   }
 
+  const pathInfo = getPathShadeInfo();
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto">
@@ -244,11 +261,24 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
           >
             <div className="flex items-center gap-3">
               <TreePine className="h-5 w-5 text-primary" />
-              <div>
+              <div className="flex-1">
                 <h3 className="font-bold text-white mb-1">
-                  {nextTown ? 'Path Shade Information' : 'Journey Complete!'}
+                  {nextTown ? 'Path Information' : 'Journey Complete!'}
                 </h3>
-                <p className="text-sm text-white font-bold">{getPathShadeInfo()}</p>
+                {nextTown ? (
+                  <>
+                    <p className="text-sm text-white font-bold mb-1">
+                      Path to {nextTown.name} ({pathInfo.distance}km)
+                    </p>
+                    <div className="flex items-center gap-2 mb-1">
+                      {pathInfo.elevationIcon}
+                      <span className="text-sm text-white font-bold">{pathInfo.elevationText}</span>
+                    </div>
+                    <p className="text-sm text-white font-bold">Shade: {pathInfo.shade}</p>
+                  </>
+                ) : (
+                  <p className="text-sm text-white font-bold">You've reached Santiago! Congratulations!</p>
+                )}
                 <p className="text-xs text-white/80 mt-1 font-bold">
                   {nextTown ? 'Click to view route in Google Maps' : 'Click to view location'}
                 </p>

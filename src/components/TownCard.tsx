@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MapPin, TreePine } from 'lucide-react';
+import { MapPin, TreePine, Mountain } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import WeatherDisplay from './WeatherDisplay';
 
@@ -78,8 +78,12 @@ const TownCard: React.FC<TownCardProps> = ({
         />
       </div>
       
-      <div className="text-sm text-muted-foreground font-medium mb-2">
-        {town.distance} km • {town.elevation}m
+      <div className="flex items-center justify-between text-sm text-muted-foreground font-medium mb-2">
+        <span>{town.distance} km</span>
+        <div className="flex items-center gap-1">
+          <Mountain className="h-3 w-3" />
+          <span>{town.elevation}m elevation</span>
+        </div>
       </div>
       
       {/* Shade information */}
