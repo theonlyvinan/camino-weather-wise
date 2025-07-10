@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Thermometer, Droplets, Wind, Loader2 } from 'lucide-react';
-import { useWeather } from '@/hooks/useWeather';
+import { useWeather, useForecast } from '@/hooks/useWeather';
 
 interface WeatherDisplayProps {
   lat: number;
@@ -19,6 +19,7 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
   showDetails = true
 }) => {
   const weather = useWeather(lat, lng);
+  const forecast = useForecast(lat, lng);
 
   const convertTemp = (temp: number) => {
     return isCelsius ? temp : Math.round((temp * 9/5) + 32);
@@ -47,6 +48,23 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
     }
   };
 
+  // Get high/low temp colors
+  const getHighTempColor = (temp: number) => {
+    const celsius = isCelsius ? temp : (temp - 32) * 5/9;
+    if (celsius >= 30) return 'text-red-400';
+    if (celsius >= 25) return 'text-orange-400';
+    if (celsius >= 20) return 'text-yellow-400';
+    return 'text-foreground';
+  };
+
+  const getLowTempColor = (temp: number) => {
+    const celsius = isCelsius ? temp : (temp - 32) * 5/9;
+    if (celsius <= 5) return 'text-blue-400';
+    if (celsius <= 10) return 'text-cyan-400';
+    if (celsius <= 15) return 'text-slate-400';
+    return 'text-muted-foreground';
+  };
+
   const classes = getSizeClasses();
 
   if (weather.isLoading) {
@@ -66,6 +84,12 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
     );
   }
 
+  // Get today's forecast for min/max temps
+  const todaysForecast = forecast.forecast?.find(day => {
+    const today = new Date().toISOString().split('T')[0];
+    return day.date === today;
+  });
+
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
@@ -76,6 +100,21 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
           {weather.condition}
         </div>
       </div>
+      
+      {/* Show min/max temps if forecast is available */}
+      {todaysForecast && (
+        <div className="flex items-center justify-between">
+          <div className="text-sm font-medium">
+            <span className={`${getHighTempColor(todaysForecast.high)}`}>
+              H: {convertTemp(todaysForecast.high)}°
+            </span>
+            {' / '}
+            <span className={`${getLowTempColor(todaysForecast.low)}`}>
+              L: {convertTemp(todaysForecast.low)}°
+            </span>
+          </div>
+        </div>
+      )}
       
       {showDetails && (
         <div className="flex items-center gap-3">

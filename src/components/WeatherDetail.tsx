@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine, Loader2, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -95,6 +96,23 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     if (celsius >= 15) return 'hsl(0, 0%, 40%)'; // dark gray
     if (celsius >= 10) return 'hsl(0, 0%, 60%)'; // medium gray
     return 'hsl(0, 0%, 80%)'; // light gray
+  };
+
+  // New function to get high/low temperature colors
+  const getHighTempColor = (temp: number) => {
+    const celsius = isCelsius ? temp : (temp - 32) * 5/9;
+    if (celsius >= 30) return 'text-red-400';
+    if (celsius >= 25) return 'text-orange-400';
+    if (celsius >= 20) return 'text-yellow-400';
+    return 'text-foreground';
+  };
+
+  const getLowTempColor = (temp: number) => {
+    const celsius = isCelsius ? temp : (temp - 32) * 5/9;
+    if (celsius <= 5) return 'text-blue-400';
+    if (celsius <= 10) return 'text-cyan-400';
+    if (celsius <= 15) return 'text-slate-400';
+    return 'text-muted-foreground';
   };
 
   const getWeatherIcon = (condition: string) => {
@@ -230,11 +248,11 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
             <div className="flex items-center gap-3">
               <TreePine className="h-5 w-5 text-primary" />
               <div>
-                <h3 className="font-semibold text-primary mb-1">
+                <h3 className="font-bold text-white mb-1">
                   {nextTown ? 'Path Shade Information' : 'Journey Complete!'}
                 </h3>
-                <p className="text-sm text-foreground">{getPathShadeInfo()}</p>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-sm text-white font-bold">{getPathShadeInfo()}</p>
+                <p className="text-xs text-white/80 mt-1 font-bold">
                   {nextTown ? 'Click to view route in Google Maps' : 'Click to view location'}
                 </p>
               </div>
@@ -415,12 +433,12 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                       </div>
                       
                       <div className="text-right">
-                        <div className="font-bold text-foreground">
-                          <span style={{ color: getTemperatureColor(day.high) }}>
+                        <div className="font-bold">
+                          <span className={`${getHighTempColor(day.high)}`}>
                             {convertTemp(day.high)}°
                           </span>
                           {' / '}
-                          <span className="text-muted-foreground" style={{ color: getTemperatureColor(day.low) }}>
+                          <span className={`${getLowTempColor(day.low)}`}>
                             {convertTemp(day.low)}°
                           </span>
                         </div>
