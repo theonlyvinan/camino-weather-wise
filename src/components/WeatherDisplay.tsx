@@ -42,7 +42,7 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
       default:
         return {
           temp: 'text-lg font-bold',
-          condition: 'text-sm',
+          condition: 'text-xs',
           details: 'text-xs'
         };
     }
@@ -89,8 +89,8 @@ const WeatherDisplay: React.FC<WeatherDisplayProps> = ({
   });
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3">
+      <div className="text-right space-y-1">
         <div className={`text-foreground ${classes.temp}`}>
           {convertTemp(weather.temperature)}°{isCelsius ? 'C' : 'F'}
         </div>
