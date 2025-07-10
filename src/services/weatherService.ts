@@ -1,4 +1,3 @@
-
 interface WeatherData {
   temperature: number;
   condition: string;
@@ -23,8 +22,8 @@ interface ForecastData {
   }>;
 }
 
-// Replace 'YOUR_API_KEY_HERE' with your actual OpenWeatherMap API key
-const API_KEY = 'YOUR_API_KEY_HERE';
+// API key for OpenWeatherMap
+const API_KEY = '57b7c2030d5a783496f29ad6fff3f8d8';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
 
 export const fetchWeatherData = async (lat: number, lng: number): Promise<WeatherData> => {
