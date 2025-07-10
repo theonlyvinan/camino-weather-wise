@@ -105,7 +105,7 @@ const Index = () => {
             <h2 className="text-sm font-medium text-muted-foreground mb-2">Your Journey</h2>
             <div className="flex justify-between items-center">
               <div>
-                <p className="font-semibold text-foreground text-lg">Current: {currentTown.name}</p>
+                <p className="font-semibold text-foreground text-base">Current: {currentTown.name}</p>
                 {nextTown && (
                   <p className="text-sm text-muted-foreground">Next: {nextTown.name}</p>
                 )}
@@ -115,7 +115,7 @@ const Index = () => {
                   lat={currentTown.coordinates.lat}
                   lng={currentTown.coordinates.lng}
                   isCelsius={isCelsius}
-                  size="large"
+                  size="medium"
                   showDetails={false}
                 />
               </div>
