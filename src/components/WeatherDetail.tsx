@@ -42,10 +42,11 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
 }) => {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
-  // Find current town and next town
+  // Find current town and next town logic
   const currentTownIndex = caminoTowns.findIndex(t => t.id === town.id);
   const nextTown = currentTownIndex < caminoTowns.length - 1 ? caminoTowns[currentTownIndex + 1] : null;
 
+  // convertTemp function
   const convertTemp = (temp: number) => {
     return isCelsius ? temp : Math.round((temp * 9/5) + 32);
   };
@@ -56,14 +57,15 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
       (isCelsius ? temp : (temp - 32) * 5/9) : 
       temp; // If temp is already in celsius (for original data)
     
-    if (celsius >= 30) return '#ef4444'; // hot red
-    if (celsius >= 25) return '#f97316'; // warm orange
-    if (celsius >= 20) return '#eab308'; // mild yellow
-    if (celsius >= 15) return '#22c55e'; // cool green
-    if (celsius >= 10) return '#06b6d4'; // cold cyan
-    return '#3b82f6'; // very cold blue
+    if (celsius >= 30) return 'hsl(0, 84%, 60%)'; // red
+    if (celsius >= 25) return 'hsl(20, 84%, 60%)'; // orange-red
+    if (celsius >= 20) return 'hsl(40, 84%, 60%)'; // yellow-red
+    if (celsius >= 15) return 'hsl(0, 0%, 40%)'; // dark gray
+    if (celsius >= 10) return 'hsl(0, 0%, 60%)'; // medium gray
+    return 'hsl(0, 0%, 80%)'; // light gray
   };
 
+  // getWeatherIcon, handleShadeClick, getPathShadeInfo, createSmoothPath functions
   const getWeatherIcon = (condition: string) => {
     if (condition.includes('sunny') || condition.includes('clear')) {
       return <Sun className="h-5 w-5" />;
@@ -134,27 +136,27 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="min-h-screen bg-background p-4">
         <div className="max-w-md mx-auto">
           <div className="flex items-center gap-3 mb-6">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={onBack}
-              className="p-2 hover:bg-white/60 backdrop-blur-sm"
+              className="p-2 hover:bg-muted/60"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">{town.name}</h1>
-              <p className="text-gray-600 text-sm">{town.distance} km • {town.elevation} m elevation</p>
+              <h1 className="text-2xl font-bold text-foreground">{town.name}</h1>
+              <p className="text-muted-foreground text-sm">{town.distance} km • {town.elevation} m elevation</p>
             </div>
           </div>
           
           <div className="flex items-center justify-center py-12">
             <div className="flex items-center gap-3">
-              <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
-              <span className="text-lg text-gray-600">Loading forecast...</span>
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <span className="text-lg text-muted-foreground">Loading forecast...</span>
             </div>
           </div>
         </div>
@@ -163,37 +165,37 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={onBack}
-            className="p-2 hover:bg-white/60 backdrop-blur-sm"
+            className="p-2 hover:bg-muted/60"
           >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900">{town.name}</h1>
-            <p className="text-gray-600 text-sm">{town.distance} km • {town.elevation} m elevation</p>
+            <h1 className="text-2xl font-bold text-foreground">{town.name}</h1>
+            <p className="text-muted-foreground text-sm">{town.distance} km • {town.elevation} m elevation</p>
           </div>
         </div>
 
         {/* Path Shade Information */}
         <div className="mb-6">
           <Card 
-            className="p-4 border border-green-200 bg-green-50/80 backdrop-blur-sm cursor-pointer hover:bg-green-100/80 transition-colors"
+            className="p-4 border-primary/20 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
             onClick={handleShadeClick}
           >
             <div className="flex items-center gap-3">
-              <TreePine className="h-5 w-5 text-green-600" />
+              <TreePine className="h-5 w-5 text-primary" />
               <div>
-                <h3 className="font-semibold text-green-800 mb-1">
+                <h3 className="font-semibold text-primary mb-1">
                   {nextTown ? 'Path Shade Information' : 'Journey Complete!'}
                 </h3>
-                <p className="text-sm text-green-700">{getPathShadeInfo()}</p>
-                <p className="text-xs text-green-600 mt-1">
+                <p className="text-sm text-foreground">{getPathShadeInfo()}</p>
+                <p className="text-xs text-muted-foreground mt-1">
                   {nextTown ? 'Click to view route in Google Maps' : 'Click to view location'}
                 </p>
               </div>
@@ -213,8 +215,8 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                       onClick={() => setSelectedDayIndex(index)}
                       className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                         selectedDayIndex === index
-                          ? 'bg-blue-100 border-blue-300 text-blue-800 border-2'
-                          : 'bg-white/60 border border-gray-200 text-gray-600 hover:bg-white/80'
+                          ? 'bg-primary text-primary-foreground border-2 border-primary'
+                          : 'bg-card border border-border text-muted-foreground hover:bg-muted/80'
                       }`}
                     >
                       {index === 0 ? 'Today' : 
@@ -233,7 +235,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
             {/* Hourly Forecast Chart */}
             {selectedForecast && selectedForecast.hourly && selectedForecast.hourly.length > 0 && (
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">
+                <h2 className="text-lg font-semibold text-foreground mb-3">
                   {selectedDayIndex === 0 ? "Today's" : 
                     new Date(selectedForecast.date).toLocaleDateString('en-US', { 
                       weekday: 'long', 
@@ -242,7 +244,8 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                     })
                   } Hourly Forecast
                 </h2>
-                <Card className="p-4 border border-white/60 bg-white/70 backdrop-blur-sm">
+                <Card className="p-4 border-border bg-card">
+                  
                   <div className="relative">
                     {/* Temperature Chart */}
                     <div className="relative h-40 mb-4">
@@ -344,11 +347,11 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                     <div className="flex justify-between items-center">
                       {selectedForecast.hourly.map((hour, index) => (
                         <div key={index} className="flex flex-col items-center text-center min-w-0">
-                          <div className="text-gray-600 mb-1">
+                          <div className="text-muted-foreground mb-1">
                             {getWeatherIcon(hour.condition)}
                           </div>
-                          <div className="text-xs text-gray-600 font-medium">{hour.time}</div>
-                          <div className="text-xs text-blue-600 mt-1 font-medium">{hour.precipitation}%</div>
+                          <div className="text-xs text-muted-foreground font-medium">{hour.time}</div>
+                          <div className="text-xs text-primary mt-1 font-medium">{hour.precipitation}%</div>
                         </div>
                       ))}
                     </div>
@@ -359,17 +362,17 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
 
             {/* 10-Day Forecast */}
             <div className="space-y-3">
-              <h2 className="text-lg font-semibold text-gray-900">10-Day Forecast</h2>
+              <h2 className="text-lg font-semibold text-foreground">10-Day Forecast</h2>
               {forecast.map((day, index) => {
                 return (
-                  <Card key={index} className="p-4 border border-gray-200 bg-white backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer">
+                  <Card key={index} className="p-4 border-border bg-card hover:shadow-lg transition-all duration-200 cursor-pointer">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="text-gray-600">
+                        <div className="text-muted-foreground">
                           {getWeatherIcon(day.condition)}
                         </div>
                         <div>
-                          <div className="font-medium text-gray-900">
+                          <div className="font-medium text-foreground">
                             {index === 0 ? 'Today' : 
                               new Date(day.date).toLocaleDateString('en-US', { 
                                 weekday: 'short', 
@@ -378,38 +381,38 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                               })
                             }
                           </div>
-                          <div className="text-sm text-gray-600 capitalize">
+                          <div className="text-sm text-muted-foreground capitalize">
                             {day.condition}
                           </div>
                         </div>
                       </div>
                       
                       <div className="text-right">
-                        <div className="font-bold text-gray-900">
+                        <div className="font-bold text-foreground">
                           <span style={{ color: getTemperatureColor(day.high) }}>
                             {convertTemp(day.high)}°
                           </span>
                           {' / '}
-                          <span className="text-gray-600" style={{ color: getTemperatureColor(day.low) }}>
+                          <span className="text-muted-foreground" style={{ color: getTemperatureColor(day.low) }}>
                             {convertTemp(day.low)}°
                           </span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="mt-3 pt-3 border-t border-gray-200/50">
+                    <div className="mt-3 pt-3 border-t border-border/50">
                       <div className="grid grid-cols-3 gap-4 text-xs">
                         <div className="flex items-center gap-1">
-                          <Droplets className="h-3 w-3 text-gray-500" />
-                          <span className="text-gray-600">{day.humidity}%</span>
+                          <Droplets className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-muted-foreground">{day.humidity}%</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Wind className="h-3 w-3 text-gray-500" />
-                          <span className="text-gray-600">{day.windSpeed} km/h</span>
+                          <Wind className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-muted-foreground">{day.windSpeed} km/h</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Cloud className="h-3 w-3 text-gray-500" />
-                          <span className="text-gray-600">{day.precipitation}%</span>
+                          <Cloud className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-muted-foreground">{day.precipitation}%</span>
                         </div>
                       </div>
                     </div>
