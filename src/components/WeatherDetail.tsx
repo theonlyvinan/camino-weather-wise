@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine } from 'lucide-react';
+import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, TreePine, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { caminoTowns } from '@/data/caminoTowns';
@@ -12,9 +11,7 @@ interface WeatherDetailProps {
     distance: number;
     elevation: number;
     coordinates: { lat: number; lng: number };
-    weather: {
-      shade: string;
-    };
+    shade: string;
   };
   forecast: Array<{
     date: string;
@@ -24,7 +21,7 @@ interface WeatherDetailProps {
     humidity: number;
     windSpeed: number;
     precipitation: number;
-    hourly?: Array<{
+    hourly: Array<{
       time: string;
       temperature: number;
       condition: string;
@@ -33,13 +30,15 @@ interface WeatherDetailProps {
   }>;
   onBack: () => void;
   isCelsius: boolean;
+  isLoading?: boolean;
 }
 
 const WeatherDetail: React.FC<WeatherDetailProps> = ({ 
   town, 
   forecast, 
   onBack, 
-  isCelsius
+  isCelsius,
+  isLoading = false
 }) => {
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
@@ -63,13 +62,6 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     if (celsius >= 15) return '#22c55e'; // cool green
     if (celsius >= 10) return '#06b6d4'; // cold cyan
     return '#3b82f6'; // very cold blue
-  };
-
-  const getTemperatureGradient = (temp: number) => {
-    const celsius = isCelsius ? temp : (temp - 32) * 5/9;
-    if (celsius >= 25) return 'from-red-500 to-orange-500';
-    if (celsius >= 15) return 'from-yellow-500 to-green-500';
-    return 'from-cyan-500 to-blue-500';
   };
 
   const getWeatherIcon = (condition: string) => {
@@ -98,7 +90,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     }
     
     const distance = nextTown.distance - town.distance;
-    return `Path to ${nextTown.name} (${distance}km): ${town.weather.shade}`;
+    return `Path to ${nextTown.name} (${distance}km): ${town.shade}`;
   };
 
   // Create smooth curve path
@@ -140,6 +132,36 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
     return ((maxTemp - temp) / (maxTemp - minTemp)) * 70 + 15; // 15-85% range
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div className="max-w-md mx-auto">
+          <div className="flex items-center gap-3 mb-6">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onBack}
+              className="p-2 hover:bg-white/60 backdrop-blur-sm"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900">{town.name}</h1>
+              <p className="text-gray-600 text-sm">{town.distance} km • {town.elevation} m elevation</p>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center py-12">
+            <div className="flex items-center gap-3">
+              <Loader2 className="h-6 w-6 animate-spin text-blue-500" />
+              <span className="text-lg text-gray-600">Loading forecast...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-md mx-auto">
@@ -179,220 +201,224 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
           </Card>
         </div>
 
-        {/* Day Selection Tabs */}
-        <div className="mb-6">
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {forecast.map((day, index) => {
-              return (
-                <button
-                  key={index}
-                  onClick={() => setSelectedDayIndex(index)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    selectedDayIndex === index
-                      ? 'bg-blue-100 border-blue-300 text-blue-800 border-2'
-                      : 'bg-white/60 border border-gray-200 text-gray-600 hover:bg-white/80'
-                  }`}
-                >
-                  {index === 0 ? 'Today' : 
-                    new Date(day.date).toLocaleDateString('en-US', { 
-                      weekday: 'short', 
+        {forecast.length > 0 && (
+          <>
+            {/* Day Selection Tabs */}
+            <div className="mb-6">
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {forecast.map((day, index) => {
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedDayIndex(index)}
+                      className={`flex-shrink-0 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        selectedDayIndex === index
+                          ? 'bg-blue-100 border-blue-300 text-blue-800 border-2'
+                          : 'bg-white/60 border border-gray-200 text-gray-600 hover:bg-white/80'
+                      }`}
+                    >
+                      {index === 0 ? 'Today' : 
+                        new Date(day.date).toLocaleDateString('en-US', { 
+                          weekday: 'short', 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })
+                      }
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Hourly Forecast Chart */}
+            {selectedForecast && selectedForecast.hourly && selectedForecast.hourly.length > 0 && (
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-3">
+                  {selectedDayIndex === 0 ? "Today's" : 
+                    new Date(selectedForecast.date).toLocaleDateString('en-US', { 
+                      weekday: 'long', 
                       month: 'short', 
                       day: 'numeric' 
                     })
-                  }
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Hourly Forecast Chart */}
-        {selectedForecast && selectedForecast.hourly && selectedForecast.hourly.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-3">
-              {selectedDayIndex === 0 ? "Today's" : 
-                new Date(selectedForecast.date).toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  month: 'short', 
-                  day: 'numeric' 
-                })
-              } Hourly Forecast
-            </h2>
-            <Card className="p-4 border border-white/60 bg-white/70 backdrop-blur-sm">
-              <div className="relative">
-                {/* Temperature Chart */}
-                <div className="relative h-40 mb-4">
-                  <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id={`tempGradient-${selectedDayIndex}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                        {selectedForecast.hourly.map((hour, index) => (
-                          <stop
-                            key={index}
-                            offset={`${(index / (selectedForecast.hourly!.length - 1)) * 100}%`}
-                            stopColor={getTemperatureColor(hour.temperature, false)}
-                          />
-                        ))}
-                      </linearGradient>
-                      <linearGradient id={`tempArea-${selectedDayIndex}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.15" />
-                        <stop offset="100%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.02" />
-                      </linearGradient>
-                    </defs>
-                    
-                    {/* Area under curve - very subtle */}
-                    <path
-                      d={(() => {
-                        const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
-                        const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
-                        const points = selectedForecast.hourly!.map((hour, index) => ({
-                          x: (index / (selectedForecast.hourly!.length - 1)) * 100,
-                          y: getChartPosition(hour.temperature, minTemp, maxTemp)
-                        }));
-                        const smoothPath = createSmoothPath(points);
-                        return smoothPath + ` L 100,90 L 0,90 Z`;
-                      })()}
-                      fill={`url(#tempArea-${selectedDayIndex})`}
-                    />
-                    
-                    {/* Temperature curve - ultra thin */}
-                    <path
-                      d={(() => {
-                        const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
-                        const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
-                        const points = selectedForecast.hourly!.map((hour, index) => ({
-                          x: (index / (selectedForecast.hourly!.length - 1)) * 100,
-                          y: getChartPosition(hour.temperature, minTemp, maxTemp)
-                        }));
-                        return createSmoothPath(points);
-                      })()}
-                      fill="none"
-                      stroke={`url(#tempGradient-${selectedDayIndex})`}
-                      strokeWidth="0.3"
-                      className="drop-shadow-sm"
-                    />
-                    
-                    {/* Temperature dots - smaller and perfectly round */}
-                    {selectedForecast.hourly.map((hour, index) => {
-                      const x = (index / (selectedForecast.hourly!.length - 1)) * 100;
-                      const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
-                      const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
-                      const y = getChartPosition(hour.temperature, minTemp, maxTemp);
-                      return (
-                        <circle
-                          key={index}
-                          cx={x}
-                          cy={y}
-                          r="1"
-                          fill={getTemperatureColor(hour.temperature, false)}
-                          stroke="white"
+                  } Hourly Forecast
+                </h2>
+                <Card className="p-4 border border-white/60 bg-white/70 backdrop-blur-sm">
+                  <div className="relative">
+                    {/* Temperature Chart */}
+                    <div className="relative h-40 mb-4">
+                      <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                        <defs>
+                          <linearGradient id={`tempGradient-${selectedDayIndex}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                            {selectedForecast.hourly.map((hour, index) => (
+                              <stop
+                                key={index}
+                                offset={`${(index / (selectedForecast.hourly!.length - 1)) * 100}%`}
+                                stopColor={getTemperatureColor(hour.temperature, false)}
+                              />
+                            ))}
+                          </linearGradient>
+                          <linearGradient id={`tempArea-${selectedDayIndex}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.15" />
+                            <stop offset="100%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.02" />
+                          </linearGradient>
+                        </defs>
+                        
+                        {/* Area under curve - very subtle */}
+                        <path
+                          d={(() => {
+                            const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
+                            const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
+                            const points = selectedForecast.hourly!.map((hour, index) => ({
+                              x: (index / (selectedForecast.hourly!.length - 1)) * 100,
+                              y: getChartPosition(hour.temperature, minTemp, maxTemp)
+                            }));
+                            const smoothPath = createSmoothPath(points);
+                            return smoothPath + ` L 100,90 L 0,90 Z`;
+                          })()}
+                          fill={`url(#tempArea-${selectedDayIndex})`}
+                        />
+                        
+                        {/* Temperature curve - ultra thin */}
+                        <path
+                          d={(() => {
+                            const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
+                            const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
+                            const points = selectedForecast.hourly!.map((hour, index) => ({
+                              x: (index / (selectedForecast.hourly!.length - 1)) * 100,
+                              y: getChartPosition(hour.temperature, minTemp, maxTemp)
+                            }));
+                            return createSmoothPath(points);
+                          })()}
+                          fill="none"
+                          stroke={`url(#tempGradient-${selectedDayIndex})`}
                           strokeWidth="0.3"
                           className="drop-shadow-sm"
                         />
-                      );
-                    })}
-                  </svg>
-                  
-                  {/* Temperature labels */}
-                  <div className="absolute inset-0 flex justify-between items-start">
-                    {selectedForecast.hourly.map((hour, index) => {
-                      const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
-                      const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
-                      const topPosition = getChartPosition(hour.temperature, minTemp, maxTemp);
-                      return (
-                        <div
-                          key={index}
-                          className="text-xs font-bold text-white bg-black/50 rounded px-1"
-                          style={{ 
-                            position: 'absolute',
-                            left: `${(index / (selectedForecast.hourly!.length - 1)) * 100}%`,
-                            top: `${Math.max(0, topPosition - 12)}%`,
-                            transform: 'translateX(-50%)'
-                          }}
-                        >
-                          {convertTemp(hour.temperature)}°
+                        
+                        {/* Temperature dots - smaller and perfectly round */}
+                        {selectedForecast.hourly.map((hour, index) => {
+                          const x = (index / (selectedForecast.hourly!.length - 1)) * 100;
+                          const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
+                          const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
+                          const y = getChartPosition(hour.temperature, minTemp, maxTemp);
+                          return (
+                            <circle
+                              key={index}
+                              cx={x}
+                              cy={y}
+                              r="1"
+                              fill={getTemperatureColor(hour.temperature, false)}
+                              stroke="white"
+                              strokeWidth="0.3"
+                              className="drop-shadow-sm"
+                            />
+                          );
+                        })}
+                      </svg>
+                      
+                      {/* Temperature labels */}
+                      <div className="absolute inset-0 flex justify-between items-start">
+                        {selectedForecast.hourly.map((hour, index) => {
+                          const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
+                          const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
+                          const topPosition = getChartPosition(hour.temperature, minTemp, maxTemp);
+                          return (
+                            <div
+                              key={index}
+                              className="text-xs font-bold text-white bg-black/50 rounded px-1"
+                              style={{ 
+                                position: 'absolute',
+                                left: `${(index / (selectedForecast.hourly!.length - 1)) * 100}%`,
+                                top: `${Math.max(0, topPosition - 12)}%`,
+                                transform: 'translateX(-50%)'
+                              }}
+                            >
+                              {convertTemp(hour.temperature)}°
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Weather icons and times */}
+                    <div className="flex justify-between items-center">
+                      {selectedForecast.hourly.map((hour, index) => (
+                        <div key={index} className="flex flex-col items-center text-center min-w-0">
+                          <div className="text-gray-600 mb-1">
+                            {getWeatherIcon(hour.condition)}
+                          </div>
+                          <div className="text-xs text-gray-600 font-medium">{hour.time}</div>
+                          <div className="text-xs text-blue-600 mt-1 font-medium">{hour.precipitation}%</div>
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Weather icons and times */}
-                <div className="flex justify-between items-center">
-                  {selectedForecast.hourly.map((hour, index) => (
-                    <div key={index} className="flex flex-col items-center text-center min-w-0">
-                      <div className="text-gray-600 mb-1">
-                        {getWeatherIcon(hour.condition)}
-                      </div>
-                      <div className="text-xs text-gray-600 font-medium">{hour.time}</div>
-                      <div className="text-xs text-blue-600 mt-1 font-medium">{hour.precipitation}%</div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                </Card>
               </div>
-            </Card>
-          </div>
-        )}
+            )}
 
-        {/* 10-Day Forecast */}
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold text-gray-900">10-Day Forecast</h2>
-          {forecast.map((day, index) => {
-            return (
-              <Card key={index} className="p-4 border border-gray-200 bg-white backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="text-gray-600">
-                      {getWeatherIcon(day.condition)}
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {index === 0 ? 'Today' : 
-                          new Date(day.date).toLocaleDateString('en-US', { 
-                            weekday: 'short', 
-                            month: 'short', 
-                            day: 'numeric' 
-                          })
-                        }
+            {/* 10-Day Forecast */}
+            <div className="space-y-3">
+              <h2 className="text-lg font-semibold text-gray-900">10-Day Forecast</h2>
+              {forecast.map((day, index) => {
+                return (
+                  <Card key={index} className="p-4 border border-gray-200 bg-white backdrop-blur-sm hover:shadow-lg transition-all duration-200 cursor-pointer">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="text-gray-600">
+                          {getWeatherIcon(day.condition)}
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {index === 0 ? 'Today' : 
+                              new Date(day.date).toLocaleDateString('en-US', { 
+                                weekday: 'short', 
+                                month: 'short', 
+                                day: 'numeric' 
+                              })
+                            }
+                          </div>
+                          <div className="text-sm text-gray-600 capitalize">
+                            {day.condition}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-600 capitalize">
-                        {day.condition}
+                      
+                      <div className="text-right">
+                        <div className="font-bold text-gray-900">
+                          <span style={{ color: getTemperatureColor(day.high) }}>
+                            {convertTemp(day.high)}°
+                          </span>
+                          {' / '}
+                          <span className="text-gray-600" style={{ color: getTemperatureColor(day.low) }}>
+                            {convertTemp(day.low)}°
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="text-right">
-                    <div className="font-bold text-gray-900">
-                      <span style={{ color: getTemperatureColor(day.high) }}>
-                        {convertTemp(day.high)}°
-                      </span>
-                      {' / '}
-                      <span className="text-gray-600" style={{ color: getTemperatureColor(day.low) }}>
-                        {convertTemp(day.low)}°
-                      </span>
+                    
+                    <div className="mt-3 pt-3 border-t border-gray-200/50">
+                      <div className="grid grid-cols-3 gap-4 text-xs">
+                        <div className="flex items-center gap-1">
+                          <Droplets className="h-3 w-3 text-gray-500" />
+                          <span className="text-gray-600">{day.humidity}%</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Wind className="h-3 w-3 text-gray-500" />
+                          <span className="text-gray-600">{day.windSpeed} km/h</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Cloud className="h-3 w-3 text-gray-500" />
+                          <span className="text-gray-600">{day.precipitation}%</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                
-                <div className="mt-3 pt-3 border-t border-gray-200/50">
-                  <div className="grid grid-cols-3 gap-4 text-xs">
-                    <div className="flex items-center gap-1">
-                      <Droplets className="h-3 w-3 text-gray-500" />
-                      <span className="text-gray-600">{day.humidity}%</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Wind className="h-3 w-3 text-gray-500" />
-                      <span className="text-gray-600">{day.windSpeed} km/h</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Cloud className="h-3 w-3 text-gray-500" />
-                      <span className="text-gray-600">{day.precipitation}%</span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+                  </Card>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

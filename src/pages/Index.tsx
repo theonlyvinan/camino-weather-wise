@@ -4,13 +4,19 @@ import { Navigation, MapPin, Thermometer } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import TownCard from '@/components/TownCard';
 import WeatherDetail from '@/components/WeatherDetail';
+import WeatherDisplay from '@/components/WeatherDisplay';
 import { useLocationService } from '@/components/LocationService';
-import { caminoTowns, generateForecast, CaminoTown } from '@/data/caminoTowns';
+import { useForecast } from '@/hooks/useWeather';
+import { caminoTowns, CaminoTown } from '@/data/caminoTowns';
 
 const Index = () => {
   const [selectedTown, setSelectedTown] = useState<CaminoTown | null>(null);
   const [isCelsius, setIsCelsius] = useState(true);
   const { currentTown, nextTown, userLocation } = useLocationService();
+  const currentTownForecast = useForecast(
+    selectedTown?.coordinates.lat || 0, 
+    selectedTown?.coordinates.lng || 0
+  );
 
   const handleTownClick = (town: CaminoTown) => {
     setSelectedTown(town);
@@ -20,17 +26,14 @@ const Index = () => {
     setSelectedTown(null);
   };
 
-  const convertTemp = (temp: number) => {
-    return isCelsius ? temp : Math.round((temp * 9/5) + 32);
-  };
-
   if (selectedTown) {
     return (
       <WeatherDetail
         town={selectedTown}
-        forecast={generateForecast(selectedTown)}
+        forecast={currentTownForecast.forecast}
         onBack={handleBackClick}
         isCelsius={isCelsius}
+        isLoading={currentTownForecast.isLoading}
       />
     );
   }
@@ -60,7 +63,7 @@ const Index = () => {
           </div>
           
           <p className="text-blue-100 text-sm">
-            Weather forecast for the Camino Frances Way
+            Live weather forecast for the Camino Frances Way
           </p>
           {userLocation && (
             <div className="flex items-center gap-2 mt-2 text-xs text-green-200">
@@ -82,12 +85,13 @@ const Index = () => {
                 )}
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-white drop-shadow-sm">
-                  {convertTemp(currentTown.weather.temperature)}°{isCelsius ? 'C' : 'F'}
-                </div>
-                <div className="text-xs text-emerald-100 capitalize">
-                  {currentTown.weather.condition}
-                </div>
+                <WeatherDisplay
+                  lat={currentTown.coordinates.lat}
+                  lng={currentTown.coordinates.lng}
+                  isCelsius={isCelsius}
+                  size="large"
+                  showDetails={false}
+                />
               </div>
             </div>
           </div>
@@ -110,7 +114,8 @@ const Index = () => {
 
         {/* Footer */}
         <div className="p-4 text-center text-xs text-purple-600 border-t bg-gradient-to-r from-yellow-50 to-orange-50">
-          <p className="font-medium">¡Buen Camino! Safe travels on your journey. 🌟</p>
+          <p className="font-medium">¡Buen Camino! Live weather updates for your journey. 🌟</p>
+          <p className="text-purple-500 mt-1">Set VITE_OPENWEATHER_API_KEY for live data</p>
         </div>
       </div>
     </div>

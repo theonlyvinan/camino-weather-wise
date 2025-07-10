@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { MapPin, Thermometer, Droplets, Wind, TreePine } from 'lucide-react';
+import { MapPin, TreePine } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import WeatherDisplay from './WeatherDisplay';
 
 interface TownCardProps {
   town: {
@@ -9,14 +10,8 @@ interface TownCardProps {
     name: string;
     distance: number;
     elevation: number;
-    weather: {
-      temperature: number;
-      condition: string;
-      humidity: number;
-      windSpeed: number;
-      visibility: number;
-      shade: string;
-    };
+    coordinates: { lat: number; lng: number };
+    shade: string;
   };
   isCurrent?: boolean;
   isNext?: boolean;
@@ -31,10 +26,6 @@ const TownCard: React.FC<TownCardProps> = ({
   onClick, 
   isCelsius 
 }) => {
-  const convertTemp = (temp: number) => {
-    return isCelsius ? temp : Math.round((temp * 9/5) + 32);
-  };
-
   const getBorderColor = () => {
     if (isCurrent) return 'border-blue-400 bg-gradient-to-r from-blue-50 to-cyan-50 shadow-blue-200';
     if (isNext) return 'border-green-400 bg-gradient-to-r from-green-50 to-emerald-50 shadow-green-200';
@@ -69,11 +60,6 @@ const TownCard: React.FC<TownCardProps> = ({
           <MapPin className={`h-4 w-4 ${getIconColor()}`} />
           <h3 className="font-semibold text-gray-800">{town.name}</h3>
         </div>
-        <div className="text-right">
-          <div className="text-xl font-bold text-orange-600">
-            {convertTemp(town.weather.temperature)}°{isCelsius ? 'C' : 'F'}
-          </div>
-        </div>
       </div>
       
       {getStatusText() && (
@@ -82,31 +68,28 @@ const TownCard: React.FC<TownCardProps> = ({
         </div>
       )}
       
-      <div className="flex items-center justify-between text-sm text-gray-600 mb-2">
-        <span className="capitalize text-indigo-600 font-medium">{town.weather.condition}</span>
-        <span className="text-purple-600 font-medium">{town.distance} km • {town.elevation}m</span>
+      <div className="mb-2">
+        <WeatherDisplay
+          lat={town.coordinates.lat}
+          lng={town.coordinates.lng}
+          isCelsius={isCelsius}
+          size="medium"
+          showDetails={true}
+        />
+      </div>
+      
+      <div className="text-sm text-purple-600 font-medium mb-2">
+        {town.distance} km • {town.elevation}m
       </div>
       
       {/* Shade information */}
       <div className="flex items-center gap-1 mb-2 text-xs text-green-700 bg-green-50 px-2 py-1 rounded-md">
         <TreePine className="h-3 w-3 text-green-600" />
-        <span className="truncate">{town.weather.shade}</span>
+        <span className="truncate">{town.shade}</span>
       </div>
       
-      <div className="flex items-center justify-between text-xs">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1 text-blue-600">
-            <Droplets className="h-3 w-3" />
-            <span>{town.weather.humidity}%</span>
-          </div>
-          <div className="flex items-center gap-1 text-teal-600">
-            <Wind className="h-3 w-3" />
-            <span>{town.weather.windSpeed} km/h</span>
-          </div>
-        </div>
-        <div className="text-pink-500 font-medium">
-          Tap for details
-        </div>
+      <div className="text-xs text-pink-500 font-medium text-right">
+        Tap for details
       </div>
     </Card>
   );
