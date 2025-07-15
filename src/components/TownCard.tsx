@@ -3,6 +3,7 @@ import React from 'react';
 import { MapPin, Mountain } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import WeatherDisplay from './WeatherDisplay';
+import FavoriteButton from './FavoriteButton';
 
 interface TownCardProps {
   town: {
@@ -59,6 +60,7 @@ const TownCard: React.FC<TownCardProps> = ({
           <MapPin className={`h-4 w-4 ${getIconColor()}`} />
           <h3 className="font-semibold text-foreground">{town.name}</h3>
         </div>
+        <FavoriteButton townId={town.id} />
       </div>
       
       {getStatusText() && (
