@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Calendar, Thermometer, Droplets, Wind, Eye, Sun, Cloud, Loader2, Clock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -384,7 +383,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                           className="drop-shadow-sm"
                         />
                         
-                        {/* Temperature dots - smaller and perfectly round */}
+                        {/* Temperature dots - very small filled circles */}
                         {selectedForecast.hourly.map((hour, index) => {
                           const x = (index / (selectedForecast.hourly!.length - 1)) * 100;
                           const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
@@ -395,10 +394,8 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                               key={index}
                               cx={x}
                               cy={y}
-                              r="1"
+                              r="0.5"
                               fill={getTemperatureColor(hour.temperature, false)}
-                              stroke="white"
-                              strokeWidth="0.3"
                               className="drop-shadow-sm"
                             />
                           );
