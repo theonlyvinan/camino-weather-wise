@@ -136,21 +136,21 @@ const IndexContent = () => {
         )}
 
         {/* Search and Filter Section */}
-        <div className="p-4 border-b bg-card space-y-3">
-          <SearchBox
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Search towns..."
-          />
-          
-          {/* Favorites Filter Toggle */}
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-foreground">Show favorites only</span>
+        <div className="p-4 border-b bg-card">
+          <div className="flex items-center gap-3">
+            <div className="flex-1">
+              <SearchBox
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search towns..."
+              />
+            </div>
+            
             <Button
               variant={showFavoritesOnly ? "default" : "outline"}
               size="sm"
               onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 shrink-0"
             >
               <Heart className={`h-4 w-4 ${showFavoritesOnly ? 'fill-current' : ''}`} />
               {showFavoritesOnly ? 'Favorites' : 'All'}
