@@ -65,6 +65,13 @@ export const caminoTowns: CaminoTown[] = [
     coordinates: { lat: 42.9876, lng: -1.4567 }
   },
   {
+    id: '2c1',
+    name: 'Ilarratz',
+    distance: 48,
+    elevation: 720,
+    coordinates: { lat: 42.9654, lng: -1.4789 }
+  },
+  {
     id: '2d',
     name: 'Linzoain',
     distance: 52,
