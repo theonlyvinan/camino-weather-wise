@@ -9,8 +9,9 @@ import { useLocationService } from '@/components/LocationService';
 import { useForecast } from '@/hooks/useWeather';
 import { caminoTowns, CaminoTown } from '@/data/caminoTowns';
 import { formatInTimeZone } from 'date-fns-tz';
+import { FavoritesProvider } from '@/contexts/FavoritesContext';
 
-const Index = () => {
+const IndexContent = () => {
   const [selectedTown, setSelectedTown] = useState<CaminoTown | null>(null);
   const [isCelsius, setIsCelsius] = useState(true);
   const [currentSpainTime, setCurrentSpainTime] = useState('');
@@ -174,6 +175,14 @@ const Index = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const Index = () => {
+  return (
+    <FavoritesProvider>
+      <IndexContent />
+    </FavoritesProvider>
   );
 };
 

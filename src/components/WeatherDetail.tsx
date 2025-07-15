@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { caminoTowns } from '@/data/caminoTowns';
 import { formatInTimeZone } from 'date-fns-tz';
+import FavoriteButton from './FavoriteButton';
 
 interface WeatherDetailProps {
   town: {
@@ -255,6 +256,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
             <h1 className="text-2xl font-bold text-foreground">{town.name}</h1>
             <p className="text-muted-foreground text-sm">{town.distance} km • {town.elevation} m</p>
           </div>
+          <FavoriteButton townId={town.id} />
         </div>
 
         {/* Current Time in Spain */}
