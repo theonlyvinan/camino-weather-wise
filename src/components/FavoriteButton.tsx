@@ -31,8 +31,8 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
       <Heart
         className={`h-4 w-4 transition-colors ${
           favorite 
-            ? 'fill-red-500 text-red-500' 
-            : 'text-muted-foreground hover:text-red-400'
+            ? 'fill-destructive text-destructive' 
+            : 'text-muted-foreground hover:text-destructive/70'
         }`}
       />
     </Button>
