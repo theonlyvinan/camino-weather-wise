@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Navigation, MapPin, Thermometer, Clock } from 'lucide-react';
+import { Navigation, MapPin, Thermometer, Clock, Heart } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
 import TownCard from '@/components/TownCard';
 import WeatherDetail from '@/components/WeatherDetail';
 import WeatherDisplay from '@/components/WeatherDisplay';
@@ -9,14 +10,16 @@ import { useLocationService } from '@/components/LocationService';
 import { useForecast } from '@/hooks/useWeather';
 import { caminoTowns, CaminoTown } from '@/data/caminoTowns';
 import { formatInTimeZone } from 'date-fns-tz';
-import { FavoritesProvider } from '@/contexts/FavoritesContext';
+import { FavoritesProvider, useFavorites } from '@/contexts/FavoritesContext';
 
 const IndexContent = () => {
   const [selectedTown, setSelectedTown] = useState<CaminoTown | null>(null);
   const [isCelsius, setIsCelsius] = useState(true);
   const [currentSpainTime, setCurrentSpainTime] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const { currentTown, nextTown, userLocation } = useLocationService();
+  const { favorites } = useFavorites();
   const currentTownForecast = useForecast(
     selectedTown?.coordinates.lat || 0, 
     selectedTown?.coordinates.lng || 0
@@ -25,10 +28,12 @@ const IndexContent = () => {
   // Spain timezone
   const SPAIN_TIMEZONE = 'Europe/Madrid';
 
-  // Filter towns based on search query
-  const filteredTowns = caminoTowns.filter(town =>
-    town.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter towns based on search query and favorites filter
+  const filteredTowns = caminoTowns.filter(town => {
+    const matchesSearch = town.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFavorites = showFavoritesOnly ? favorites.includes(town.id) : true;
+    return matchesSearch && matchesFavorites;
+  });
 
   // Update Spain time every minute
   useEffect(() => {
@@ -130,20 +135,36 @@ const IndexContent = () => {
           </div>
         )}
 
-        {/* Search Box */}
-        <div className="p-4 border-b bg-card">
+        {/* Search and Filter Section */}
+        <div className="p-4 border-b bg-card space-y-3">
           <SearchBox
             value={searchQuery}
             onChange={setSearchQuery}
             placeholder="Search towns..."
           />
+          
+          {/* Favorites Filter Toggle */}
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-foreground">Show favorites only</span>
+            <Button
+              variant={showFavoritesOnly ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              className="flex items-center gap-2"
+            >
+              <Heart className={`h-4 w-4 ${showFavoritesOnly ? 'fill-current' : ''}`} />
+              {showFavoritesOnly ? 'Favorites' : 'All'}
+            </Button>
+          </div>
         </div>
 
         {/* Towns List */}
         <div className="p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">All Towns</h2>
-            {searchQuery && (
+            <h2 className="text-lg font-semibold text-foreground">
+              {showFavoritesOnly ? 'Favorite Towns' : 'All Towns'}
+            </h2>
+            {(searchQuery || showFavoritesOnly) && (
               <span className="text-sm text-muted-foreground">
                 {filteredTowns.length} of {caminoTowns.length} towns
               </span>
@@ -152,7 +173,15 @@ const IndexContent = () => {
           
           {filteredTowns.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No towns found matching "{searchQuery}"</p>
+              {showFavoritesOnly ? (
+                <div>
+                  <Heart className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
+                  <p>No favorite towns yet</p>
+                  <p className="text-xs mt-1">Tap the heart icon on towns to add them to favorites</p>
+                </div>
+              ) : (
+                <p>No towns found matching "{searchQuery}"</p>
+              )}
             </div>
           ) : (
             filteredTowns.map((town) => (
