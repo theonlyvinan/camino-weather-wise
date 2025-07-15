@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigation, MapPin, Thermometer, Clock } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import TownCard from '@/components/TownCard';
 import WeatherDetail from '@/components/WeatherDetail';
 import WeatherDisplay from '@/components/WeatherDisplay';
+import SearchBox from '@/components/SearchBox';
 import { useLocationService } from '@/components/LocationService';
 import { useForecast } from '@/hooks/useWeather';
 import { caminoTowns, CaminoTown } from '@/data/caminoTowns';
@@ -14,6 +14,7 @@ const Index = () => {
   const [selectedTown, setSelectedTown] = useState<CaminoTown | null>(null);
   const [isCelsius, setIsCelsius] = useState(true);
   const [currentSpainTime, setCurrentSpainTime] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const { currentTown, nextTown, userLocation } = useLocationService();
   const currentTownForecast = useForecast(
     selectedTown?.coordinates.lat || 0, 
@@ -22,6 +23,11 @@ const Index = () => {
 
   // Spain timezone
   const SPAIN_TIMEZONE = 'Europe/Madrid';
+
+  // Filter towns based on search query
+  const filteredTowns = caminoTowns.filter(town =>
+    town.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // Update Spain time every minute
   useEffect(() => {
@@ -123,19 +129,42 @@ const Index = () => {
           </div>
         )}
 
+        {/* Search Box */}
+        <div className="p-4 border-b bg-card">
+          <SearchBox
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search towns..."
+          />
+        </div>
+
         {/* Towns List */}
         <div className="p-4 space-y-3">
-          <h2 className="text-lg font-semibold text-foreground mb-4">All Towns</h2>
-          {caminoTowns.map((town) => (
-            <TownCard
-              key={town.id}
-              town={town}
-              isCurrent={currentTown?.id === town.id}
-              isNext={nextTown?.id === town.id}
-              onClick={() => handleTownClick(town)}
-              isCelsius={isCelsius}
-            />
-          ))}
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-foreground">All Towns</h2>
+            {searchQuery && (
+              <span className="text-sm text-muted-foreground">
+                {filteredTowns.length} of {caminoTowns.length} towns
+              </span>
+            )}
+          </div>
+          
+          {filteredTowns.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No towns found matching "{searchQuery}"</p>
+            </div>
+          ) : (
+            filteredTowns.map((town) => (
+              <TownCard
+                key={town.id}
+                town={town}
+                isCurrent={currentTown?.id === town.id}
+                isNext={nextTown?.id === town.id}
+                onClick={() => handleTownClick(town)}
+                isCelsius={isCelsius}
+              />
+            ))
+          )}
         </div>
 
         {/* Footer */}
