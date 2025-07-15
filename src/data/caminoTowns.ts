@@ -1,4 +1,3 @@
-
 export interface CaminoTown {
   id: string;
   name: string;
@@ -65,13 +64,6 @@ export const caminoTowns: CaminoTown[] = [
     coordinates: { lat: 42.9876, lng: -1.4567 }
   },
   {
-    id: '2c1',
-    name: 'Ilarratz',
-    distance: 48,
-    elevation: 720,
-    coordinates: { lat: 42.9654, lng: -1.4789 }
-  },
-  {
     id: '2d',
     name: 'Linzoain',
     distance: 52,
@@ -84,6 +76,13 @@ export const caminoTowns: CaminoTown[] = [
     distance: 58,
     elevation: 520,
     coordinates: { lat: 42.8876, lng: -1.5678 }
+  },
+  {
+    id: '2f',
+    name: 'Ilarratz',
+    distance: 62,
+    elevation: 480,
+    coordinates: { lat: 42.8654, lng: -1.5889 }
   },
   {
     id: '3',
