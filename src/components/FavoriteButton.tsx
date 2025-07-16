@@ -26,7 +26,7 @@ const FavoriteButton: React.FC<FavoriteButtonProps> = ({
         e.stopPropagation();
         toggleFavorite(townId);
       }}
-      className={`p-1 hover:bg-muted/60 transition-colors ${className}`}
+      className={`p-2 hover:bg-muted/60 transition-colors border border-transparent hover:border-muted ${className}`}
     >
       <Heart
         className={`h-4 w-4 transition-colors ${
