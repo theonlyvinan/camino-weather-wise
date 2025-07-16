@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Navigation, MapPin, Thermometer, Clock, Heart } from 'lucide-react';
+import { Navigation, MapPin, Thermometer, Clock, Heart, Trash2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import TownCard from '@/components/TownCard';
@@ -19,7 +19,7 @@ const IndexContent = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const { currentTown, nextTown, userLocation } = useLocationService();
-  const { favorites } = useFavorites();
+  const { favorites, clearAllFavorites } = useFavorites();
   const currentTownForecast = useForecast(
     selectedTown?.coordinates.lat || 0, 
     selectedTown?.coordinates.lng || 0
@@ -155,6 +155,18 @@ const IndexContent = () => {
               <Heart className={`h-4 w-4 ${showFavoritesOnly ? 'fill-current' : ''}`} />
               {showFavoritesOnly ? 'Favorites' : 'All'}
             </Button>
+
+            {showFavoritesOnly && favorites.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearAllFavorites}
+                className="flex items-center gap-2 shrink-0 text-destructive hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+                Clear All
+              </Button>
+            )}
           </div>
         </div>
 
