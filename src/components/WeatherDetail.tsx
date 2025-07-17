@@ -383,7 +383,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                           })()}
                           fill="none"
                           stroke={`url(#tempGradient-${selectedDayIndex})`}
-                          strokeWidth="2"
+                          strokeWidth="0.3"
                           className="drop-shadow-sm"
                         />
                         
