@@ -64,15 +64,19 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
     
     const data = await response.json();
     
-    // Group forecast data by day
+    // Group forecast data by day (accounting for Spain timezone)
     const dailyData: { [key: string]: any[] } = {};
     
     data.list.forEach((item: any) => {
-      const date = item.dt_txt.split(' ')[0];
-      if (!dailyData[date]) {
-        dailyData[date] = [];
+      // Convert UTC timestamp to Spain date
+      const utcDate = new Date(item.dt * 1000);
+      const spainDate = new Date(utcDate.getTime() + (2 * 60 * 60 * 1000)); // UTC+2 for Spain
+      const dateString = spainDate.toISOString().split('T')[0];
+      
+      if (!dailyData[dateString]) {
+        dailyData[dateString] = [];
       }
-      dailyData[date].push(item);
+      dailyData[dateString].push(item);
     });
     
     // Convert to our format
