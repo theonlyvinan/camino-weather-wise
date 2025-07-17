@@ -377,11 +377,13 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                               x: (index / (selectedForecast.hourly!.length - 1)) * 100,
                               y: getChartPosition(hour.temperature, minTemp, maxTemp)
                             }));
-                            return createSmoothPath(points);
+                            const pathData = createSmoothPath(points);
+                            console.log('Chart debug - Town:', town?.name, 'Points:', points.length, 'Min/Max temp:', minTemp, maxTemp, 'Path:', pathData);
+                            return pathData;
                           })()}
                           fill="none"
                           stroke={`url(#tempGradient-${selectedDayIndex})`}
-                          strokeWidth="0.3"
+                          strokeWidth="2"
                           className="drop-shadow-sm"
                         />
                         
