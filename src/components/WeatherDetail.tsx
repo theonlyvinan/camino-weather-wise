@@ -323,7 +323,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
               </div>
             </div>
 
-            {/* Hourly Forecast Chart */}
+            {/* Hourly Forecast */}
             {selectedForecast && selectedForecast.hourly && selectedForecast.hourly.length > 0 ? (
               <div className="mb-6">
                 <h2 className="text-lg font-semibold text-foreground mb-3">
@@ -331,123 +331,163 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                     formatDateForSpain(selectedForecast.date, 'EEEE, MMMM d')
                   } Hourly Forecast
                 </h2>
-                <Card className="p-4 border-border bg-card">
-                  
-                  <div className="relative">
-                    {/* Temperature Chart */}
-                    <div className="relative h-40 mb-4">
-                      <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                        <defs>
-                          <linearGradient id={`tempGradient-${selectedDayIndex}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                            {selectedForecast.hourly.map((hour, index) => (
-                              <stop
-                                key={index}
-                                offset={`${(index / (selectedForecast.hourly!.length - 1)) * 100}%`}
-                                stopColor={getTemperatureColor(hour.temperature, false)}
-                              />
-                            ))}
-                          </linearGradient>
-                          <linearGradient id={`tempArea-${selectedDayIndex}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.15" />
-                            <stop offset="100%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.02" />
-                          </linearGradient>
-                        </defs>
-                        
-                        {/* Area under curve - very subtle */}
-                        <path
-                          d={(() => {
-                            const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
-                            const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
-                            const points = selectedForecast.hourly!.map((hour, index) => ({
-                              x: (index / (selectedForecast.hourly!.length - 1)) * 100,
-                              y: getChartPosition(hour.temperature, minTemp, maxTemp)
-                            }));
-                            const smoothPath = createSmoothPath(points);
-                            return smoothPath + ` L 100,90 L 0,90 Z`;
-                          })()}
-                          fill={`url(#tempArea-${selectedDayIndex})`}
-                        />
-                        
-                        {/* Temperature curve */}
-                        <path
-                          d={(() => {
-                            const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
-                            const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
-                            const points = selectedForecast.hourly!.map((hour, index) => ({
-                              x: (index / (selectedForecast.hourly!.length - 1)) * 100,
-                              y: getChartPosition(hour.temperature, minTemp, maxTemp)
-                            }));
-                            const pathData = createSmoothPath(points);
-                            console.log('Chart debug - Town:', town?.name, 'Points:', points.length, 'Min/Max temp:', minTemp, maxTemp, 'Path:', pathData);
-                            return pathData;
-                          })()}
-                          fill="none"
-                          stroke={`url(#tempGradient-${selectedDayIndex})`}
-                          strokeWidth={(() => {
-                            const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
-                            const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
-                            return minTemp === maxTemp ? "1.5" : "0.3"; // Thicker line for constant temperatures
-                          })()}
-                          className="drop-shadow-sm"
-                        />
-                        
-                        {/* Temperature dots - very small filled circles */}
-                        {selectedForecast.hourly.map((hour, index) => {
-                          const x = (index / (selectedForecast.hourly!.length - 1)) * 100;
-                          const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
-                          const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
-                          const y = getChartPosition(hour.temperature, minTemp, maxTemp);
-                          return (
-                            <circle
-                              key={index}
-                              cx={x}
-                              cy={y}
-                              r="0.5"
-                              fill={getTemperatureColor(hour.temperature, false)}
-                              className="drop-shadow-sm"
-                            />
-                          );
-                        })}
-                      </svg>
-                      
-                      {/* Temperature labels */}
-                      <div className="absolute inset-0 flex justify-between items-start">
-                        {selectedForecast.hourly.map((hour, index) => {
-                          const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
-                          const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
-                          const topPosition = getChartPosition(hour.temperature, minTemp, maxTemp);
-                          return (
-                            <div
-                              key={index}
-                              className="text-xs font-bold text-white bg-black/50 rounded px-1"
-                              style={{ 
-                                position: 'absolute',
-                                left: `${(index / (selectedForecast.hourly!.length - 1)) * 100}%`,
-                                top: `${Math.max(0, topPosition - 12)}%`,
-                                transform: 'translateX(-50%)'
-                              }}
-                            >
-                              {convertTemp(hour.temperature)}°
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    {/* Weather icons and times */}
-                    <div className="flex justify-between items-center">
+                
+                {/* Show table for few data points, chart for many */}
+                {selectedForecast.hourly.length <= 3 ? (
+                  <Card className="p-4 border-border bg-card">
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Showing {selectedForecast.hourly.length} available forecast point{selectedForecast.hourly.length > 1 ? 's' : ''} from API
+                      </p>
                       {selectedForecast.hourly.map((hour, index) => (
-                        <div key={index} className="flex flex-col items-center text-center min-w-0">
-                          <div className="text-muted-foreground mb-1">
-                            {getWeatherIcon(hour.condition)}
+                        <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-background/50 border border-border/50">
+                          <div className="flex items-center gap-3">
+                            <div className="text-muted-foreground">
+                              {getWeatherIcon(hour.condition)}
+                            </div>
+                            <div>
+                              <div className="font-medium text-foreground">
+                                {hour.time}
+                              </div>
+                              <div className="text-sm text-muted-foreground capitalize">
+                                {hour.condition}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-xs text-muted-foreground font-medium">{hour.time}</div>
-                          <div className="text-xs text-primary mt-1 font-medium">{hour.precipitation}%</div>
+                          
+                          <div className="text-right">
+                            <div className="font-bold text-lg">
+                              <span className={`${getTemperatureColor(hour.temperature, true)}`}>
+                                {convertTemp(hour.temperature)}°
+                              </span>
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-1">
+                              <Cloud className="h-3 w-3 inline mr-1" />
+                              {hour.precipitation}% rain
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                ) : (
+                  <Card className="p-4 border-border bg-card">
+                    <div className="relative">
+                      {/* Temperature Chart */}
+                      <div className="relative h-40 mb-4">
+                        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                          <defs>
+                            <linearGradient id={`tempGradient-${selectedDayIndex}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                              {selectedForecast.hourly.map((hour, index) => (
+                                <stop
+                                  key={index}
+                                  offset={`${(index / (selectedForecast.hourly!.length - 1)) * 100}%`}
+                                  stopColor={getTemperatureColor(hour.temperature, false)}
+                                />
+                              ))}
+                            </linearGradient>
+                            <linearGradient id={`tempArea-${selectedDayIndex}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                              <stop offset="0%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.15" />
+                              <stop offset="100%" stopColor={`url(#tempGradient-${selectedDayIndex})`} stopOpacity="0.02" />
+                            </linearGradient>
+                          </defs>
+                          
+                          {/* Area under curve - very subtle */}
+                          <path
+                            d={(() => {
+                              const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
+                              const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
+                              const points = selectedForecast.hourly!.map((hour, index) => ({
+                                x: (index / (selectedForecast.hourly!.length - 1)) * 100,
+                                y: getChartPosition(hour.temperature, minTemp, maxTemp)
+                              }));
+                              const smoothPath = createSmoothPath(points);
+                              return smoothPath + ` L 100,90 L 0,90 Z`;
+                            })()}
+                            fill={`url(#tempArea-${selectedDayIndex})`}
+                          />
+                          
+                          {/* Temperature curve */}
+                          <path
+                            d={(() => {
+                              const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
+                              const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
+                              const points = selectedForecast.hourly!.map((hour, index) => ({
+                                x: (index / (selectedForecast.hourly!.length - 1)) * 100,
+                                y: getChartPosition(hour.temperature, minTemp, maxTemp)
+                              }));
+                              const pathData = createSmoothPath(points);
+                              console.log('Chart debug - Town:', town?.name, 'Points:', points.length, 'Min/Max temp:', minTemp, maxTemp, 'Path:', pathData);
+                              return pathData;
+                            })()}
+                            fill="none"
+                            stroke={`url(#tempGradient-${selectedDayIndex})`}
+                            strokeWidth={(() => {
+                              const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
+                              const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
+                              return minTemp === maxTemp ? "1.5" : "0.3"; // Thicker line for constant temperatures
+                            })()}
+                            className="drop-shadow-sm"
+                          />
+                          
+                          {/* Temperature dots - very small filled circles */}
+                          {selectedForecast.hourly.map((hour, index) => {
+                            const x = (index / (selectedForecast.hourly!.length - 1)) * 100;
+                            const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
+                            const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
+                            const y = getChartPosition(hour.temperature, minTemp, maxTemp);
+                            return (
+                              <circle
+                                key={index}
+                                cx={x}
+                                cy={y}
+                                r="0.5"
+                                fill={getTemperatureColor(hour.temperature, false)}
+                                className="drop-shadow-sm"
+                              />
+                            );
+                          })}
+                        </svg>
+                        
+                        {/* Temperature labels */}
+                        <div className="absolute inset-0 flex justify-between items-start">
+                          {selectedForecast.hourly.map((hour, index) => {
+                            const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
+                            const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
+                            const topPosition = getChartPosition(hour.temperature, minTemp, maxTemp);
+                            return (
+                              <div
+                                key={index}
+                                className="text-xs font-bold text-white bg-black/50 rounded px-1"
+                                style={{ 
+                                  position: 'absolute',
+                                  left: `${(index / (selectedForecast.hourly!.length - 1)) * 100}%`,
+                                  top: `${Math.max(0, topPosition - 12)}%`,
+                                  transform: 'translateX(-50%)'
+                                }}
+                              >
+                                {convertTemp(hour.temperature)}°
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Weather icons and times */}
+                      <div className="flex justify-between items-center">
+                        {selectedForecast.hourly.map((hour, index) => (
+                          <div key={index} className="flex flex-col items-center text-center min-w-0">
+                            <div className="text-muted-foreground mb-1">
+                              {getWeatherIcon(hour.condition)}
+                            </div>
+                            <div className="text-xs text-muted-foreground font-medium">{hour.time}</div>
+                            <div className="text-xs text-primary mt-1 font-medium">{hour.precipitation}%</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </Card>
+                )}
               </div>
             ) : selectedForecast ? (
               <div className="mb-6">
