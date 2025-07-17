@@ -93,14 +93,12 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
       
       // Create hourly data from actual API forecast items only
       const hourly = items.map(item => {
-        const time = new Date(item.dt * 1000).toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
-          minute: '2-digit',
-          hour12: true 
-        });
+        // Convert UTC timestamp to Spain timezone for display
+        const utcDate = new Date(item.dt * 1000);
+        const spainTime = formatInTimeZone(utcDate, SPAIN_TIMEZONE, 'h:mm a');
         
         return {
-          time,
+          time: spainTime,
           temperature: Math.round(item.main.temp),
           condition: item.weather[0].description,
           precipitation: Math.round((item.pop || 0) * 100)
