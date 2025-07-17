@@ -368,7 +368,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                           fill={`url(#tempArea-${selectedDayIndex})`}
                         />
                         
-                        {/* Temperature curve - ultra thin */}
+                        {/* Temperature curve */}
                         <path
                           d={(() => {
                             const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
@@ -383,7 +383,11 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                           })()}
                           fill="none"
                           stroke={`url(#tempGradient-${selectedDayIndex})`}
-                          strokeWidth="0.3"
+                          strokeWidth={(() => {
+                            const minTemp = Math.min(...selectedForecast.hourly!.map(h => h.temperature));
+                            const maxTemp = Math.max(...selectedForecast.hourly!.map(h => h.temperature));
+                            return minTemp === maxTemp ? "1.5" : "0.3"; // Thicker line for constant temperatures
+                          })()}
                           className="drop-shadow-sm"
                         />
                         
