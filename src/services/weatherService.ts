@@ -1,4 +1,6 @@
 
+import { formatInTimeZone } from 'date-fns-tz';
+
 interface WeatherData {
   temperature: number;
   condition: string;
@@ -26,6 +28,7 @@ interface ForecastData {
 // API key for OpenWeatherMap
 const API_KEY = '57b7c2030d5a783496f29ad6fff3f8d8';
 const BASE_URL = 'https://api.openweathermap.org/data/2.5';
+const SPAIN_TIMEZONE = 'Europe/Madrid';
 
 export const fetchWeatherData = async (lat: number, lng: number): Promise<WeatherData> => {
   try {
@@ -68,15 +71,14 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
     const dailyData: { [key: string]: any[] } = {};
     
     data.list.forEach((item: any) => {
-      // Convert UTC timestamp to Spain date
+      // Use the dt_txt which is already in the correct format, but convert to Spain timezone for date grouping
       const utcDate = new Date(item.dt * 1000);
-      const spainDate = new Date(utcDate.getTime() + (2 * 60 * 60 * 1000)); // UTC+2 for Spain
-      const dateString = spainDate.toISOString().split('T')[0];
+      const spainDateString = formatInTimeZone(utcDate, SPAIN_TIMEZONE, 'yyyy-MM-dd');
       
-      if (!dailyData[dateString]) {
-        dailyData[dateString] = [];
+      if (!dailyData[spainDateString]) {
+        dailyData[spainDateString] = [];
       }
-      dailyData[dateString].push(item);
+      dailyData[spainDateString].push(item);
     });
     
     // Convert to our format
@@ -84,6 +86,8 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
       const temps = items.map(item => item.main.temp);
       const high = Math.round(Math.max(...temps));
       const low = Math.round(Math.min(...temps));
+      
+      console.log(`Date: ${date}, Items: ${items.length}, Temps: [${temps.join(', ')}], High: ${high}, Low: ${low}`);
       
       // Use midday weather for main condition
       const middayItem = items.find(item => item.dt_txt.includes('12:00:00')) || items[0];
