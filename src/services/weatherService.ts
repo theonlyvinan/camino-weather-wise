@@ -70,28 +70,27 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
     const forecastData = await forecastResponse.json();
     const currentData = await currentResponse.json();
     
-    // Determine timezone - St-Jean-Pied-de-Port is specifically in France (43.163, -1.236)
-    const timezone = (lat > 43.15 && lat < 43.17 && lng > -1.24 && lng < -1.23) ? 'Europe/Paris' : SPAIN_TIMEZONE;
+    // Use Spain timezone consistently for all calculations
+    const timezone = SPAIN_TIMEZONE;
     
-    // Group forecast data by day (accounting for local timezone)
+    // Group forecast data by day using Spain timezone
     const dailyData: { [key: string]: any[] } = {};
     
     forecastData.list.forEach((item: any) => {
       const utcDate = new Date(item.dt * 1000);
-      const localDateString = formatInTimeZone(utcDate, timezone, 'yyyy-MM-dd');
+      const spainDateString = formatInTimeZone(utcDate, timezone, 'yyyy-MM-dd');
       
-      if (!dailyData[localDateString]) {
-        dailyData[localDateString] = [];
+      if (!dailyData[spainDateString]) {
+        dailyData[spainDateString] = [];
       }
-      dailyData[localDateString].push(item);
+      dailyData[spainDateString].push(item);
     });
     
-    // Get today's date in local timezone
+    // Get today's date in Spain timezone
     const today = formatInTimeZone(new Date(), timezone, 'yyyy-MM-dd');
     
-    // Add current weather data to today's forecast if it exists
-    if (dailyData[today]) {
-      // Create a current weather item in the same format as forecast items
+    // Only add current weather if today has insufficient forecast data (less than 3 items)
+    if (dailyData[today] && dailyData[today].length < 3) {
       const currentItem = {
         dt: Math.floor(Date.now() / 1000),
         dt_txt: new Date().toISOString().replace('T', ' ').substring(0, 19),
@@ -104,7 +103,6 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
         pop: 0
       };
       
-      // Add current temperature to today's data for better high/low calculation
       dailyData[today].unshift(currentItem);
     }
     
@@ -119,8 +117,8 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
       // Use midday weather for main condition
       const middayItem = items.find(item => item.dt_txt.includes('12:00:00')) || items[0];
       
-      // Generate enhanced hourly data for ALL days, not just the first one
-      const hourly = generateEnhancedHourlyData(items, high, low);
+      // Generate deterministic hourly data 
+      const hourly = generateDeterministicHourlyData(items, high, low, date);
       
       return {
         date,
@@ -141,8 +139,8 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
   }
 };
 
-// Generate enhanced hourly data that properly reflects daily high/low with extended time range
-const generateEnhancedHourlyData = (apiItems: any[], dailyHigh: number, dailyLow: number) => {
+// Generate deterministic hourly data that properly reflects daily high/low
+const generateDeterministicHourlyData = (apiItems: any[], dailyHigh: number, dailyLow: number, date: string) => {
   // Create hourly entries from 12:00 AM to 11:00 PM (every 3 hours)
   const hours = [
     '12:00 AM', '3:00 AM', '6:00 AM', '9:00 AM', 
@@ -155,6 +153,9 @@ const generateEnhancedHourlyData = (apiItems: any[], dailyHigh: number, dailyLow
     const hour = new Date(item.dt * 1000).getHours();
     apiItemsByHour[hour.toString()] = item;
   });
+  
+  // Use date as seed for consistent but different conditions per day
+  const dateNum = parseInt(date.replace(/-/g, ''));
   
   return hours.map((timeStr, index) => {
     // Map time strings to 24-hour format
@@ -197,10 +198,11 @@ const generateEnhancedHourlyData = (apiItems: any[], dailyHigh: number, dailyLow
         temperature = dailyLow;
       }
       
-      // Vary conditions based on time and temperature
+      // Deterministic conditions based on date and hour (no random)
       const conditions = ['clear', 'partly cloudy', 'cloudy', 'light rain'];
-      condition = conditions[Math.floor(Math.random() * conditions.length)];
-      precipitation = Math.round(Math.random() * 25);
+      const conditionIndex = (dateNum + hour) % conditions.length;
+      condition = conditions[conditionIndex];
+      precipitation = (dateNum + hour * 3) % 31; // 0-30%
     }
     
     return {
