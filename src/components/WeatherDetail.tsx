@@ -324,7 +324,7 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
             </div>
 
             {/* Hourly Forecast Chart */}
-            {selectedForecast && selectedForecast.hourly && selectedForecast.hourly.length > 0 && (
+            {selectedForecast && selectedForecast.hourly && selectedForecast.hourly.length > 0 ? (
               <div className="mb-6">
                 <h2 className="text-lg font-semibold text-foreground mb-3">
                   {isToday(selectedForecast.date) ? "Today's" : 
@@ -443,7 +443,21 @@ const WeatherDetail: React.FC<WeatherDetailProps> = ({
                   </div>
                 </Card>
               </div>
-            )}
+            ) : selectedForecast ? (
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-foreground mb-3">
+                  {isToday(selectedForecast.date) ? "Today's" : 
+                    formatDateForSpain(selectedForecast.date, 'EEEE, MMMM d')
+                  } Hourly Forecast
+                </h2>
+                <Card className="p-4 border-border bg-card">
+                  <div className="text-center text-muted-foreground py-8">
+                    <p>Hourly forecast data not available for this location</p>
+                    <p className="text-sm mt-2">Showing daily forecast below</p>
+                  </div>
+                </Card>
+              </div>
+            ) : null}
 
             {/* 10-Day Forecast */}
             <div className="space-y-3">

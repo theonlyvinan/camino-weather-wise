@@ -160,7 +160,10 @@ const IndexContent = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={clearAllFavorites}
+                onClick={() => {
+                  clearAllFavorites();
+                  setShowFavoritesOnly(false);
+                }}
                 className="flex items-center gap-2 shrink-0 text-destructive hover:text-destructive"
               >
                 <Trash2 className="h-4 w-4" />
