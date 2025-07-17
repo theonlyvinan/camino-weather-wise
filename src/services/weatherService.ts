@@ -57,56 +57,30 @@ export const fetchWeatherData = async (lat: number, lng: number): Promise<Weathe
 
 export const fetchForecastData = async (lat: number, lng: number): Promise<ForecastData[]> => {
   try {
-    // Fetch both current weather and forecast data
-    const [forecastResponse, currentResponse] = await Promise.all([
-      fetch(`${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`),
-      fetch(`${BASE_URL}/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`)
-    ]);
+    // Fetch only forecast data
+    const response = await fetch(
+      `${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`
+    );
     
-    if (!forecastResponse.ok || !currentResponse.ok) {
-      throw new Error(`API error: ${forecastResponse.status} ${currentResponse.status}`);
+    if (!response.ok) {
+      throw new Error(`Weather API error: ${response.status}`);
     }
     
-    const forecastData = await forecastResponse.json();
-    const currentData = await currentResponse.json();
+    const data = await response.json();
     
-    // Use Spain timezone consistently for all calculations
-    const timezone = SPAIN_TIMEZONE;
-    
-    // Group forecast data by day using Spain timezone
+    // Group forecast data by day using UTC dates (no timezone conversion)
     const dailyData: { [key: string]: any[] } = {};
     
-    forecastData.list.forEach((item: any) => {
-      const utcDate = new Date(item.dt * 1000);
-      const spainDateString = formatInTimeZone(utcDate, timezone, 'yyyy-MM-dd');
+    data.list.forEach((item: any) => {
+      const date = item.dt_txt.split(' ')[0]; // Extract date from "2025-07-17 12:00:00"
       
-      if (!dailyData[spainDateString]) {
-        dailyData[spainDateString] = [];
+      if (!dailyData[date]) {
+        dailyData[date] = [];
       }
-      dailyData[spainDateString].push(item);
+      dailyData[date].push(item);
     });
     
-    // Get today's date in Spain timezone
-    const today = formatInTimeZone(new Date(), timezone, 'yyyy-MM-dd');
-    
-    // Only add current weather if today has insufficient forecast data (less than 3 items)
-    if (dailyData[today] && dailyData[today].length < 3) {
-      const currentItem = {
-        dt: Math.floor(Date.now() / 1000),
-        dt_txt: new Date().toISOString().replace('T', ' ').substring(0, 19),
-        main: {
-          temp: currentData.main.temp,
-          humidity: currentData.main.humidity
-        },
-        weather: currentData.weather,
-        wind: currentData.wind,
-        pop: 0
-      };
-      
-      dailyData[today].unshift(currentItem);
-    }
-    
-    // Convert to our format
+    // Convert to our format using only API data
     const forecast: ForecastData[] = Object.entries(dailyData).slice(0, 10).map(([date, items]) => {
       const temps = items.map(item => item.main.temp);
       const high = Math.round(Math.max(...temps));
@@ -117,8 +91,21 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
       // Use midday weather for main condition
       const middayItem = items.find(item => item.dt_txt.includes('12:00:00')) || items[0];
       
-      // Generate deterministic hourly data 
-      const hourly = generateDeterministicHourlyData(items, high, low, date);
+      // Create hourly data from actual API forecast items
+      const hourly = items.map(item => {
+        const time = new Date(item.dt * 1000).toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        });
+        
+        return {
+          time,
+          temperature: Math.round(item.main.temp),
+          condition: item.weather[0].description,
+          precipitation: Math.round((item.pop || 0) * 100)
+        };
+      });
       
       return {
         date,
@@ -139,80 +126,6 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
   }
 };
 
-// Generate deterministic hourly data that properly reflects daily high/low
-const generateDeterministicHourlyData = (apiItems: any[], dailyHigh: number, dailyLow: number, date: string) => {
-  // Create hourly entries from 12:00 AM to 11:00 PM (every 3 hours)
-  const hours = [
-    '12:00 AM', '3:00 AM', '6:00 AM', '9:00 AM', 
-    '12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM', '11:00 PM'
-  ];
-  
-  // Map API items by hour for reference
-  const apiItemsByHour: { [key: string]: any } = {};
-  apiItems.forEach(item => {
-    const hour = new Date(item.dt * 1000).getHours();
-    apiItemsByHour[hour.toString()] = item;
-  });
-  
-  // Use date as seed for consistent but different conditions per day
-  const dateNum = parseInt(date.replace(/-/g, ''));
-  
-  return hours.map((timeStr, index) => {
-    // Map time strings to 24-hour format
-    const hourMapping = [0, 3, 6, 9, 12, 15, 18, 21, 23];
-    const hour = hourMapping[index];
-    
-    // Use API data if available, otherwise interpolate
-    const apiItem = apiItemsByHour[hour.toString()];
-    
-    let temperature: number;
-    let condition: string;
-    let precipitation: number;
-    
-    if (apiItem) {
-      temperature = Math.round(apiItem.main.temp);
-      condition = apiItem.weather[0].description;
-      precipitation = Math.round((apiItem.pop || 0) * 100);
-    } else {
-      // Enhanced interpolation based on time of day with realistic temperature curves
-      const tempRange = dailyHigh - dailyLow;
-      let tempFactor: number;
-      
-      // More realistic temperature curve throughout the day
-      if (hour === 0) tempFactor = 0.2; // Midnight - cool
-      else if (hour === 3) tempFactor = 0.1; // 3 AM - coolest
-      else if (hour === 6) tempFactor = 0.15; // 6 AM - still cool
-      else if (hour === 9) tempFactor = 0.4; // 9 AM - warming up
-      else if (hour === 12) tempFactor = 0.8; // Noon - getting hot
-      else if (hour === 15) tempFactor = 1.0; // 3 PM - peak heat
-      else if (hour === 18) tempFactor = 0.7; // 6 PM - cooling down
-      else if (hour === 21) tempFactor = 0.5; // 9 PM - evening cool
-      else tempFactor = 0.3; // 11 PM - night cool
-      
-      temperature = Math.round(dailyLow + (tempRange * tempFactor));
-      
-      // Ensure we actually hit the daily high and low at appropriate times
-      if (hour === 15) { // 3 PM should be the hottest
-        temperature = dailyHigh;
-      } else if (hour === 3) { // 3 AM should be the coolest
-        temperature = dailyLow;
-      }
-      
-      // Deterministic conditions based on date and hour (no random)
-      const conditions = ['clear', 'partly cloudy', 'cloudy', 'light rain'];
-      const conditionIndex = (dateNum + hour) % conditions.length;
-      condition = conditions[conditionIndex];
-      precipitation = (dateNum + hour * 3) % 31; // 0-30%
-    }
-    
-    return {
-      time: timeStr,
-      temperature,
-      condition,
-      precipitation
-    };
-  });
-};
 
 // Fallback mock data generators
 const generateMockWeather = (): WeatherData => ({
