@@ -70,8 +70,8 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
     const forecastData = await forecastResponse.json();
     const currentData = await currentResponse.json();
     
-    // Determine timezone - St-Jean-Pied-de-Port is in France, others in Spain
-    const timezone = (lat > 43.1 && lng < -1.2) ? 'Europe/Paris' : SPAIN_TIMEZONE;
+    // Determine timezone - St-Jean-Pied-de-Port is specifically in France (43.163, -1.236)
+    const timezone = (lat > 43.15 && lat < 43.17 && lng > -1.24 && lng < -1.23) ? 'Europe/Paris' : SPAIN_TIMEZONE;
     
     // Group forecast data by day (accounting for local timezone)
     const dailyData: { [key: string]: any[] } = {};
