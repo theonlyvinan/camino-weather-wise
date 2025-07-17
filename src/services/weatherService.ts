@@ -92,20 +92,27 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
       const middayItem = items.find(item => item.dt_txt.includes('12:00:00')) || items[0];
       
       // Create hourly data from actual API forecast items
-      const hourly = items.map(item => {
-        const time = new Date(item.dt * 1000).toLocaleTimeString('en-US', { 
-          hour: 'numeric', 
-          minute: '2-digit',
-          hour12: true 
+      let hourly;
+      if (items.length < 4) {
+        // If we have too few data points (like today), generate a full hourly set
+        hourly = generateFullDayHourlyData(items, high, low);
+      } else {
+        // Use actual API data
+        hourly = items.map(item => {
+          const time = new Date(item.dt * 1000).toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+          });
+          
+          return {
+            time,
+            temperature: Math.round(item.main.temp),
+            condition: item.weather[0].description,
+            precipitation: Math.round((item.pop || 0) * 100)
+          };
         });
-        
-        return {
-          time,
-          temperature: Math.round(item.main.temp),
-          condition: item.weather[0].description,
-          precipitation: Math.round((item.pop || 0) * 100)
-        };
-      });
+      }
       
       return {
         date,
@@ -126,6 +133,65 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
   }
 };
 
+
+// Generate full day hourly data when API has insufficient data points
+const generateFullDayHourlyData = (apiItems: any[], dailyHigh: number, dailyLow: number) => {
+  const hours = [
+    '12:00 AM', '3:00 AM', '6:00 AM', '9:00 AM', 
+    '12:00 PM', '3:00 PM', '6:00 PM', '9:00 PM', '11:00 PM'
+  ];
+  
+  // Map existing API items by hour for reference
+  const apiItemsByHour: { [key: string]: any } = {};
+  apiItems.forEach(item => {
+    const hour = new Date(item.dt * 1000).getHours();
+    apiItemsByHour[hour.toString()] = item;
+  });
+  
+  return hours.map((timeStr, index) => {
+    const hourMapping = [0, 3, 6, 9, 12, 15, 18, 21, 23];
+    const hour = hourMapping[index];
+    
+    // Use API data if available for this hour
+    const apiItem = apiItemsByHour[hour.toString()];
+    
+    if (apiItem) {
+      return {
+        time: timeStr,
+        temperature: Math.round(apiItem.main.temp),
+        condition: apiItem.weather[0].description,
+        precipitation: Math.round((apiItem.pop || 0) * 100)
+      };
+    } else {
+      // Interpolate temperature based on time of day
+      const tempRange = dailyHigh - dailyLow;
+      let tempFactor: number;
+      
+      if (hour === 0) tempFactor = 0.2; // Midnight
+      else if (hour === 3) tempFactor = 0.1; // 3 AM - coolest
+      else if (hour === 6) tempFactor = 0.15; // 6 AM
+      else if (hour === 9) tempFactor = 0.4; // 9 AM
+      else if (hour === 12) tempFactor = 0.8; // Noon
+      else if (hour === 15) tempFactor = 1.0; // 3 PM - hottest
+      else if (hour === 18) tempFactor = 0.7; // 6 PM
+      else if (hour === 21) tempFactor = 0.5; // 9 PM
+      else tempFactor = 0.3; // 11 PM
+      
+      let temperature = Math.round(dailyLow + (tempRange * tempFactor));
+      
+      // Ensure we hit the daily high and low
+      if (hour === 15) temperature = dailyHigh;
+      if (hour === 3) temperature = dailyLow;
+      
+      return {
+        time: timeStr,
+        temperature,
+        condition: 'partly cloudy',
+        precipitation: 15
+      };
+    }
+  });
+};
 
 // Fallback mock data generators
 const generateMockWeather = (): WeatherData => ({
