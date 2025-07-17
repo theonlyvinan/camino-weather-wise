@@ -57,21 +57,23 @@ export const fetchWeatherData = async (lat: number, lng: number): Promise<Weathe
 
 export const fetchForecastData = async (lat: number, lng: number): Promise<ForecastData[]> => {
   try {
-    const response = await fetch(
-      `${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`
-    );
+    // Fetch both current weather and forecast data
+    const [forecastResponse, currentResponse] = await Promise.all([
+      fetch(`${BASE_URL}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`),
+      fetch(`${BASE_URL}/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`)
+    ]);
     
-    if (!response.ok) {
-      throw new Error(`Forecast API error: ${response.status}`);
+    if (!forecastResponse.ok || !currentResponse.ok) {
+      throw new Error(`API error: ${forecastResponse.status} ${currentResponse.status}`);
     }
     
-    const data = await response.json();
+    const forecastData = await forecastResponse.json();
+    const currentData = await currentResponse.json();
     
     // Group forecast data by day (accounting for Spain timezone)
     const dailyData: { [key: string]: any[] } = {};
     
-    data.list.forEach((item: any) => {
-      // Use the dt_txt which is already in the correct format, but convert to Spain timezone for date grouping
+    forecastData.list.forEach((item: any) => {
       const utcDate = new Date(item.dt * 1000);
       const spainDateString = formatInTimeZone(utcDate, SPAIN_TIMEZONE, 'yyyy-MM-dd');
       
@@ -80,6 +82,28 @@ export const fetchForecastData = async (lat: number, lng: number): Promise<Forec
       }
       dailyData[spainDateString].push(item);
     });
+    
+    // Get today's date in Spain timezone
+    const today = formatInTimeZone(new Date(), SPAIN_TIMEZONE, 'yyyy-MM-dd');
+    
+    // Add current weather data to today's forecast if it exists
+    if (dailyData[today]) {
+      // Create a current weather item in the same format as forecast items
+      const currentItem = {
+        dt: Math.floor(Date.now() / 1000),
+        dt_txt: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        main: {
+          temp: currentData.main.temp,
+          humidity: currentData.main.humidity
+        },
+        weather: currentData.weather,
+        wind: currentData.wind,
+        pop: 0
+      };
+      
+      // Add current temperature to today's data for better high/low calculation
+      dailyData[today].unshift(currentItem);
+    }
     
     // Convert to our format
     const forecast: ForecastData[] = Object.entries(dailyData).slice(0, 10).map(([date, items]) => {
