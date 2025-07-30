@@ -1,0 +1,5 @@
+{
+  "appId": "com.caminweather.app",
+  "appName": "Camino Weather",
+  "webDir": "dist"
+}
